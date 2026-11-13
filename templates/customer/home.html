@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Find Your Next Smartphone</h1>
+    <p>Explore mobiles from leading brands at great prices.</p>
+    <a class="btn" href="{% url 'products' %}">Shop Now</a>
+</section>
+
+<h2>Featured Products</h2>
+<div class="grid">
+    {% for product in products %}
+    <div class="card">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+        {% else %}
+            <div class="product-placeholder">📱</div>
+        {% endif %}
+
+        <h3>{{ product.name }}</h3>
+        <p>Brand: {{ product.brand }}</p>
+        <p>{{ product.description }}</p>
+        <strong>₹{{ product.price }}</strong>
+
+        {% if product.stock > 0 %}
+            <a class="btn" href="{% url 'add_to_cart' product.id %}">Add to Cart</a>
+        {% else %}
+            <span class="danger">Out of stock</span>
+        {% endif %}
+    </div>
+    {% empty %}
+        <p>No products yet. Add products from the Django admin panel.</p>
+    {% endfor %}
+</div>
+{% endblock %}

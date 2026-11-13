@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Profile{% endblock %}{% block content %}<section class="page"><h1>Profile</h1>{% if user.is_authenticated %}<p>Username: {{ user.username }}</p><p>Email: {{ user.email }}</p><a class="btn" href="{% url 'order_history' %}">Order History</a>{% else %}<p>Please login to view your profile.</p>{% endif %}</section>{% endblock %}
