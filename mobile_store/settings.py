@@ -1,21 +1,27 @@
 """
 Django settings for mobile_store project.
 """
-
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Project base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables
+load_dotenv(BASE_DIR / ".env.local")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3_!4*l3xy^)e%b=&vvtca!gvvl8=y8_jsc-@f6l*lj@$+p@&ij'
+# Security settings
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+# Neon Authentication Configuration
+NEON_AUTH_BASE_URL = os.getenv("NEON_AUTH_BASE_URL")
+NEON_AUTH_JWKS_URL = os.getenv("NEON_AUTH_JWKS_URL")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if not NEON_AUTH_BASE_URL or not NEON_AUTH_JWKS_URL:
+    raise RuntimeError("Neon Auth environment variables are missing.")
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -69,7 +75,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mobile_store.wsgi.application'
 
-
 # Database — MySQL
 DATABASES = {
     'default': {
@@ -79,6 +84,9 @@ DATABASES = {
         'PASSWORD': '',       # Set your MySQL root password here
         'HOST': 'localhost',
         'PORT': '3306',
+"OPTIONS": {
+    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+},
     }
 }
 
@@ -120,3 +128,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+# Django session security
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
+
+CSRF_COOKIE_SAMESITE = "Lax"

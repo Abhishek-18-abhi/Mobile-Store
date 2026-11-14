@@ -6,3 +6,7 @@ venv/
 .env
 db.sqlite3
 *.log
+.neon.env
+.env.*
+!.env.example
+node_modules/

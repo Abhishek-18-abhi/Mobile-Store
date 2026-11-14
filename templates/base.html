@@ -1,1 +1,36 @@
-{% load static %}<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Mobile Store{% endblock %}</title><link rel="stylesheet" href="{% static 'css/style.css' %}"></head><body><header><a class="brand" href="{% url 'home' %}">MobileStore</a><nav><a href="{% url 'home' %}">Home</a><a href="{% url 'about' %}">About</a><a href="{% url 'products' %}">Products</a><a href="{% url 'contact' %}">Contact Us</a><a href="{% url 'cart' %}">Cart</a>{% if user.is_authenticated %}<a href="{% url 'profile' %}">Profile</a><a href="{% url 'logout' %}">Logout</a>{% else %}<a href="{% url 'login' %}">Login</a><a href="{% url 'signup' %}">Signup</a>{% endif %}</nav></header><main>{% if messages %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}</main><footer>© 2026 MobileStore. BCA Django Project.</footer></body></html>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Mobile Store{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <a class="brand" href="{% url 'home' %}">MobileStore</a>
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'products' %}">Products</a>
+        <a href="{% url 'contact' %}">Contact Us</a>
+        <a href="{% url 'cart' %}">Cart</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}">Profile</a>
+            <form method="post" action="{% url 'logout' %}" data-auth-logout>
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>{% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'signup' %}">Signup</a>
+        {% endif %}
+    </nav>
+</header>
+<main>{% if messages %}{% for message in messages %}
+    <div class="message">{{ message }}</div>
+{% endfor %}{% endif %}{% block content %}{% endblock %}</main>
+<footer>© 2026 MobileStore. BCA Django Project.</footer>
+<script type="module" src="{% static 'dist/auth.js' %}"></script>
+</body>
+</html>
