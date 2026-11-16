@@ -110,32 +110,39 @@ def order_history(request):
     })
 
 
+from .invoice_helper import build_invoice_context
+
+
 def bill(request, order_id=None):
+    invoice = None
     if order_id:
         try:
             order = Order.objects.get(id=order_id)
-            total = float(order.total_amount) if order.total_amount and order.total_amount > 0 else float(order.product.price * order.quantity)
-            payment = {
-                'txn_id': order.transaction_id or f"TXN-{order.id:06d}",
-                'payment_method': order.payment_method or 'Card / UPI / NetBanking',
-                'payment_status': order.payment_status or 'Paid',
-                'customer_name': order.customer_name,
-                'phone': order.phone or 'N/A',
-                'address': order.address or 'Standard Delivery Address',
-                'items_count': order.quantity,
-                'total_amount': total,
-                'order_id': order.id,
-            }
-            return render(request, 'customer/bill.html', {
-                'payment': payment,
-                'order': order
-            })
+            if order.transaction_id:
+                related_orders = Order.objects.filter(transaction_id=order.transaction_id).select_related('product')
+            else:
+                related_orders = [order]
+            invoice = build_invoice_context(related_orders)
         except Order.DoesNotExist:
-            pass
+            invoice = None
 
-    last_payment = request.session.get('last_payment')
+    if not invoice:
+        last_payment = request.session.get('last_payment')
+        if last_payment:
+            invoice = build_invoice_context(None, last_payment_dict=last_payment)
+
+    if not invoice:
+        latest_order = Order.objects.all().select_related('product').first()
+        if latest_order:
+            if latest_order.transaction_id:
+                related = Order.objects.filter(transaction_id=latest_order.transaction_id).select_related('product')
+            else:
+                related = [latest_order]
+            invoice = build_invoice_context(related)
+
     return render(request, 'customer/bill.html', {
-        'payment': last_payment
+        'invoice': invoice
     })
+
 
 

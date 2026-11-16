@@ -1,96 +1,660 @@
 {% extends 'base.html' %}
-{% block title %}Tax Invoice & Order Receipt{% endblock %}
+{% block title %}Tax Invoice - {{ invoice.invoice_no|default:"Mobile Store" }}{% endblock %}
 
 {% block content %}
-<div class="page" style="max-width: 680px; margin: 30px auto; padding: clamp(24px, 4vw, 40px); border-radius: 20px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.06); border: 1px solid var(--border-light);">
-    <div style="text-align: center; margin-bottom: 24px;">
-        <div style="width: 72px; height: 72px; background: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #059669; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+<style>
+/* =========================================================
+   ON-SCREEN ACTION TOOLBAR (Hidden in Print)
+   ========================================================= */
+.invoice-toolbar {
+    max-width: 860px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.invoice-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.btn-print {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: #ffffff !important;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.btn-print:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+    transform: translateY(-1px);
+}
+.btn-outline-back {
+    background: #ffffff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.btn-outline-back:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* =========================================================
+   AUTHENTIC A4 TAX INVOICE DOCUMENT
+   ========================================================= */
+.tax-invoice-wrapper {
+    max-width: 860px;
+    margin: 0 auto 40px auto;
+}
+
+.tax-invoice-sheet {
+    background: #ffffff;
+    color: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    border: 2px solid #0f172a;
+    box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 32px 36px;
+    box-sizing: border-box;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+/* Document Header */
+.inv-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    gap: 16px;
+}
+.inv-company-name {
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+    margin: 0 0 3px 0;
+    text-transform: uppercase;
+}
+.inv-company-sub {
+    font-size: 11.5px;
+    color: #475569;
+    line-height: 1.4;
+    margin: 0;
+}
+.inv-company-gstin {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 4px;
+}
+.inv-type-box {
+    text-align: right;
+    border: 1.5px solid #0f172a;
+    padding: 8px 14px;
+    background: #f8fafc;
+    border-radius: 4px;
+    min-width: 220px;
+}
+.inv-type-title {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+    text-transform: uppercase;
+}
+.inv-type-sub {
+    font-size: 10.5px;
+    color: #64748b;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.inv-type-original {
+    display: inline-block;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* Metadata Bar */
+.inv-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    margin-bottom: 16px;
+    font-size: 12px;
+}
+.inv-meta-cell {
+    padding: 7px 12px;
+    border-bottom: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: space-between;
+}
+.inv-meta-cell:nth-child(odd) {
+    border-right: 1px solid #cbd5e1;
+}
+.inv-meta-cell:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+.inv-meta-label {
+    color: #475569;
+    font-weight: 600;
+}
+.inv-meta-val {
+    font-weight: 700;
+    color: #0f172a;
+    font-family: monospace;
+    font-size: 12.5px;
+}
+
+/* Addresses Grid */
+.inv-address-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid #cbd5e1;
+    margin-bottom: 18px;
+}
+.inv-address-col {
+    padding: 12px 14px;
+}
+.inv-address-col:first-child {
+    border-right: 1px solid #cbd5e1;
+}
+.inv-address-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 6px 0;
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 4px;
+}
+.inv-customer-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 3px 0;
+}
+.inv-customer-text {
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.45;
+    margin: 0 0 3px 0;
+}
+
+/* Itemized GST Table */
+.inv-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    border: 1px solid #0f172a;
+    font-size: 12px;
+}
+.inv-items-table th {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    padding: 8px 10px;
+    letter-spacing: 0.3px;
+    border: 1px solid #0f172a;
+    text-align: left;
+}
+.inv-items-table th.center, .inv-items-table td.center {
+    text-align: center;
+}
+.inv-items-table th.right, .inv-items-table td.right {
+    text-align: right;
+}
+.inv-items-table td {
+    padding: 9px 10px;
+    border: 1px solid #cbd5e1;
+    vertical-align: middle;
+}
+.inv-items-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+.inv-product-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+    display: block;
+}
+.inv-product-desc {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Calculation & Summary Section */
+.inv-summary-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+    border-top: 1.5px solid #0f172a;
+    padding-top: 16px;
+}
+.inv-words-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.inv-words-title {
+    font-weight: 800;
+    font-size: 10.5px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 3px;
+}
+.inv-words-val {
+    font-weight: 700;
+    color: #0f172a;
+    font-style: italic;
+}
+
+.inv-calc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.inv-calc-table td {
+    padding: 4px 0;
+}
+.inv-calc-table td.right {
+    text-align: right;
+    font-weight: 700;
+    color: #0f172a;
+}
+.inv-calc-total-row td {
+    border-top: 2px solid #0f172a;
+    border-bottom: 2px solid #0f172a;
+    padding: 8px 0;
+    font-size: 15px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+/* Document Bottom / Signatory */
+.inv-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid #cbd5e1;
+    padding-top: 16px;
+    gap: 16px;
+}
+.inv-terms-box {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+    max-width: 440px;
+}
+.inv-terms-box strong {
+    color: #334155;
+}
+
+.inv-paid-seal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 2px solid #059669;
+    color: #059669;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #ecfdf5;
+    margin-bottom: 8px;
+}
+
+.inv-sign-box {
+    text-align: right;
+    min-width: 200px;
+}
+.inv-sign-for {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #0f172a;
+    text-transform: uppercase;
+    margin-bottom: 35px;
+}
+.inv-sign-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    border-top: 1px solid #0f172a;
+    padding-top: 4px;
+    display: inline-block;
+    min-width: 160px;
+}
+.inv-computer-gen {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* =========================================================
+   STRICT PRINT STYLES (Prints ONLY the Invoice Sheet on A4)
+   ========================================================= */
+@media print {
+    /* Hide the complete website chrome & on-screen navigation */
+    header,
+    footer,
+    .invoice-toolbar,
+    .no-print,
+    .alert,
+    .messages,
+    .site-header,
+    .site-footer,
+    .user-dropdown-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Reset global page styles for crisp print */
+    body, html {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 10.5pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    main, .page, .container, .page-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .tax-invoice-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .tax-invoice-sheet {
+        border: 1.5px solid #000000 !important;
+        box-shadow: none !important;
+        padding: 10mm 12mm !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .inv-items-table th {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 8mm 10mm;
+    }
+}
+</style>
+
+<!-- ON-SCREEN ACTION TOOLBAR (Hidden in Print / PDF export) -->
+<div class="invoice-toolbar no-print">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+        <strong style="color: var(--text-primary); font-size: 15px;">Official Tax Invoice Generated</strong>
+    </div>
+    <div class="invoice-btn-group">
+        <a class="btn-outline-back" href="{% url 'order_history' %}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-        </div>
-
-        <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 5px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Payment Verified & Order Confirmed</span>
-        </div>
-
-        <h1 style="margin: 14px 0 6px; font-size: clamp(24px, 4vw, 30px);">Thank You for Your Purchase!</h1>
-        <p style="color: var(--text-muted); font-size: 14.5px; margin: 0;">
-            Your order has been recorded in our database and dispatched to our logistics team.
-        </p>
-    </div>
-
-    {% if payment %}
-    <!-- Invoice Details Card -->
-    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; font-size: 13.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 14px;">
-            <div>
-                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Transaction Reference</span>
-                <strong style="color: #0f172a; font-family: monospace; font-size: 14px;">{{ payment.txn_id }}</strong>
-            </div>
-            <div>
-                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Payment Method</span>
-                <span style="display: inline-flex; align-items: center; gap: 4px; color: #1e40af; font-weight: 700;">
-                    💳 {{ payment.payment_method }}
-                </span>
-            </div>
-            <div>
-                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Recipient Name</span>
-                <strong style="color: #0f172a;">{{ payment.customer_name }}</strong>
-            </div>
-            <div>
-                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Contact Phone</span>
-                <span style="color: #0f172a;">{{ payment.phone }}</span>
-            </div>
-            <div style="grid-column: 1 / -1;">
-                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Delivery Destination</span>
-                <span style="color: #334155; line-height: 1.4;">{{ payment.address }}</span>
-            </div>
-        </div>
-
-        <h4 style="margin: 0 0 10px; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Ordered Items</h4>
-        <div style="margin-bottom: 14px;">
-            {% for itm in payment.items %}
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13.5px;">
-                <span>{{ itm.name }} (×{{ itm.qty }})</span>
-                <span style="font-weight: 700; color: #0f172a;">₹{{ itm.subtotal }}</span>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div style="border-top: 1.5px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 800; color: #0f172a;">
-            <span>Total Paid (incl. GST):</span>
-            <span style="color: #059669; font-size: 20px;">₹{{ payment.total }}</span>
-        </div>
-    </div>
-    {% endif %}
-
-    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <button type="button" class="btn btn-secondary btn-with-icon" onclick="window.print();">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <span>Order History</span>
+        </a>
+        <button type="button" class="btn-print" onclick="window.print();">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
             </svg>
-            <span>Print Invoice</span>
+            <span>Print / Save as PDF</span>
         </button>
-        <a class="btn btn-with-icon" href="{% url 'order_history' %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                <path d="m3.3 7 8.7 5 8.7-5"></path>
-                <path d="M12 22V12"></path>
-            </svg>
-            <span>View All Orders</span>
-        </a>
-        <a class="btn btn-secondary btn-with-icon" href="{% url 'products' %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
+        <a class="btn-outline-back" href="{% url 'products' %}">
             <span>Continue Shopping</span>
         </a>
+    </div>
+</div>
+
+<!-- AUTHENTIC COMMERCIAL TAX INVOICE DOCUMENT -->
+<div class="tax-invoice-wrapper">
+    <div class="tax-invoice-sheet" id="invoice-sheet">
+        
+        <!-- HEADER ROW: COMPANY DETAILS & INVOICE LABEL -->
+        <div class="inv-header-row">
+            <div>
+                <h2 class="inv-company-name">Mobile Store Retail Pvt. Ltd.</h2>
+                <p class="inv-company-sub">
+                    Authorized Retailer of Premium Electronics &amp; Smartphones<br>
+                    Corporate HQ: 4th Floor, Tech Hub, Bandra-Kurla Complex (BKC), Mumbai - 400051<br>
+                    Email: <strong>care@mobilestore.in</strong> | Toll-Free: <strong>1800-266-4357</strong> | CIN: U72900MH2024PTC123456
+                </p>
+                <div class="inv-company-gstin">
+                    GSTIN: 27AAACM8912P1ZV &nbsp;|&nbsp; State Code: 27 (Maharashtra)
+                </div>
+            </div>
+            
+            <div class="inv-type-box">
+                <div class="inv-type-title">Tax Invoice</div>
+                <div class="inv-type-sub">Under Sec. 31 of CGST Act, 2017</div>
+                <span class="inv-type-original">Original for Recipient</span>
+            </div>
+        </div>
+
+        <!-- METADATA GRID: INVOICE & ORDER DETAILS -->
+        <div class="inv-meta-grid">
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Invoice Number:</span>
+                <span class="inv-meta-val">{{ invoice.invoice_no }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Payment Mode:</span>
+                <span class="inv-meta-val" style="color: #1e40af;">{{ invoice.payment_method }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Invoice Date:</span>
+                <span class="inv-meta-val">{{ invoice.invoice_date }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Transaction ID:</span>
+                <span class="inv-meta-val">{{ invoice.txn_id }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Order Reference:</span>
+                <span class="inv-meta-val">{{ invoice.order_ref }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Payment Status:</span>
+                <span class="inv-meta-val" style="color: #059669;">{{ invoice.payment_status|upper }}</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Place of Supply:</span>
+                <span class="inv-meta-val">Maharashtra (27)</span>
+            </div>
+            <div class="inv-meta-cell">
+                <span class="inv-meta-label">Reverse Charge:</span>
+                <span class="inv-meta-val">No</span>
+            </div>
+        </div>
+
+        <!-- BILL TO & SHIP TO SECTION -->
+        <div class="inv-address-grid">
+            <div class="inv-address-col">
+                <div class="inv-address-title">Details of Receiver | Billed To</div>
+                <div class="inv-customer-name">{{ invoice.customer_name }}</div>
+                <div class="inv-customer-text"><strong>Address:</strong> {{ invoice.address }}</div>
+                <div class="inv-customer-text"><strong>Phone / Mobile:</strong> {{ invoice.phone }}</div>
+                <div class="inv-customer-text"><strong>State:</strong> Maharashtra &nbsp;|&nbsp; <strong>State Code:</strong> 27</div>
+            </div>
+            <div class="inv-address-col">
+                <div class="inv-address-title">Details of Consignee | Shipped To</div>
+                <div class="inv-customer-name">{{ invoice.customer_name }}</div>
+                <div class="inv-customer-text"><strong>Shipping Address:</strong> {{ invoice.address }}</div>
+                <div class="inv-customer-text"><strong>Contact Number:</strong> {{ invoice.phone }}</div>
+                <div class="inv-customer-text"><strong>Delivery Mode:</strong> Insured Air Express Courier (FREE)</div>
+            </div>
+        </div>
+
+        <!-- ITEMIZED GST PRODUCTS TABLE -->
+        <table class="inv-items-table">
+            <thead>
+                <tr>
+                    <th class="center" style="width: 38px;">#</th>
+                    <th>Description of Goods</th>
+                    <th class="center" style="width: 80px;">HSN / SAC</th>
+                    <th class="center" style="width: 44px;">Qty</th>
+                    <th class="right" style="width: 90px;">Rate (₹)</th>
+                    <th class="right" style="width: 95px;">Taxable (₹)</th>
+                    <th class="right" style="width: 75px;">CGST (9%)</th>
+                    <th class="right" style="width: 75px;">SGST (9%)</th>
+                    <th class="right" style="width: 100px;">Total (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for itm in invoice.items %}
+                <tr>
+                    <td class="center" style="font-weight: 700; color: #475569;">{{ itm.sr_no }}</td>
+                    <td>
+                        <span class="inv-product-title">{{ itm.name }}</span>
+                        <span class="inv-product-desc">Brand: {{ itm.brand }} | 1-Year Official Manufacturer Warranty | 5G Network Ready</span>
+                    </td>
+                    <td class="center" style="font-family: monospace; font-size: 11px;">{{ itm.hsn_code }}</td>
+                    <td class="center" style="font-weight: 700;">{{ itm.qty }}</td>
+                    <td class="right">₹{{ itm.base_rate }}</td>
+                    <td class="right">₹{{ itm.taxable_val }}</td>
+                    <td class="right">₹{{ itm.cgst }}</td>
+                    <td class="right">₹{{ itm.sgst }}</td>
+                    <td class="right" style="font-weight: 800; color: #0f172a;">₹{{ itm.subtotal }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="center" style="padding: 24px; color: #64748b;">
+                        No item records found for this invoice.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- SUMMARY & TOTALS BREAKDOWN -->
+        <div class="inv-summary-grid">
+            <div class="inv-words-box">
+                <div class="inv-words-title">Amount Chargeable in Words:</div>
+                <div class="inv-words-val">{{ invoice.amount_in_words }}</div>
+                
+                <div style="margin-top: 10px; font-size: 11px; color: #475569; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                    <strong>Payment Acknowledgement:</strong> Payment received electronically via <strong>{{ invoice.payment_method }}</strong> (Ref: <code>{{ invoice.txn_id }}</code>). All taxes charged under GST Law.
+                </div>
+            </div>
+
+            <div>
+                <table class="inv-calc-table">
+                    <tr>
+                        <td style="color: #475569;">Total Taxable Amount:</td>
+                        <td class="right">₹{{ invoice.taxable_total }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">Central GST (CGST @ 9%):</td>
+                        <td class="right">₹{{ invoice.cgst_total }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">State GST (SGST @ 9%):</td>
+                        <td class="right">₹{{ invoice.sgst_total }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">Total GST Charged (18%):</td>
+                        <td class="right">₹{{ invoice.total_tax }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">Shipping &amp; Insurance:</td>
+                        <td class="right" style="color: #059669;">₹0.00 (FREE)</td>
+                    </tr>
+                    <tr class="inv-calc-total-row">
+                        <td>GRAND TOTAL (INR):</td>
+                        <td class="right" style="color: #0f172a;">₹{{ invoice.grand_total }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER, TERMS & DIGITAL AUTHORIZATION -->
+        <div class="inv-footer-row">
+            <div class="inv-terms-box">
+                <div class="inv-paid-seal">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Paid &amp; Authenticated</span>
+                </div>
+                <p style="margin: 0 0 4px 0;">
+                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
+                </p>
+                <p style="margin: 0;">
+                    <strong>Customer Support:</strong> For warranty service, carry this invoice to any authorized brand service center across India. 7-Day replacement warranty applies from delivery date.
+                </p>
+            </div>
+
+            <div class="inv-sign-box">
+                <div class="inv-sign-for">For Mobile Store Retail Pvt. Ltd.</div>
+                <div class="inv-sign-label">Authorised Signatory</div>
+                <div class="inv-computer-gen">(Computer Generated Tax Invoice)</div>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
