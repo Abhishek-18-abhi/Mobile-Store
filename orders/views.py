@@ -80,30 +80,22 @@ def checkout(request):
 
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        address = request.POST.get('address', '').strip()
+
         if not customer_name:
             customer_name = request.user.username if request.user.is_authenticated else 'Customer'
 
-        for item in items:
-            product = item['product']
-            quantity = item['quantity']
+        if not phone or not address:
+            messages.error(request, 'Please provide both phone number and delivery address.')
+            return render(request, 'customer/checkout.html', {'items': items, 'total': total})
 
-            Order.objects.create(
-                customer_name=customer_name,
-                product=product,
-                quantity=quantity
-            )
-
-            # Reduce product stock safely
-            if product.stock >= quantity:
-                product.stock -= quantity
-            else:
-                product.stock = 0
-            product.save(update_fields=['stock'])
-
-        # Clear cart
-        request.session['cart'] = {}
-        messages.success(request, 'Order placed successfully!')
-        return redirect('bill')
+        request.session['checkout_data'] = {
+            'customer_name': customer_name,
+            'phone': phone,
+            'address': address
+        }
+        return redirect('process_payment')
 
     return render(request, 'customer/checkout.html', {
         'items': items,
@@ -118,5 +110,32 @@ def order_history(request):
     })
 
 
-def bill(request):
-    return render(request, 'customer/bill.html')
+def bill(request, order_id=None):
+    if order_id:
+        try:
+            order = Order.objects.get(id=order_id)
+            total = float(order.total_amount) if order.total_amount and order.total_amount > 0 else float(order.product.price * order.quantity)
+            payment = {
+                'txn_id': order.transaction_id or f"TXN-{order.id:06d}",
+                'payment_method': order.payment_method or 'Card / UPI / NetBanking',
+                'payment_status': order.payment_status or 'Paid',
+                'customer_name': order.customer_name,
+                'phone': order.phone or 'N/A',
+                'address': order.address or 'Standard Delivery Address',
+                'items_count': order.quantity,
+                'total_amount': total,
+                'order_id': order.id,
+            }
+            return render(request, 'customer/bill.html', {
+                'payment': payment,
+                'order': order
+            })
+        except Order.DoesNotExist:
+            pass
+
+    last_payment = request.session.get('last_payment')
+    return render(request, 'customer/bill.html', {
+        'payment': last_payment
+    })
+
+

@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% block title %}Secure Payment Gateway{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 30px auto;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="flaticon-badge flaticon-badge-lg flaticon-badge-green">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 style="margin: 0; font-size: clamp(22px, 3.5vw, 28px);">Secure Payment Gateway</h1>
+                <p style="color: var(--text-muted); font-size: 14px; margin: 3px 0 0;">256-Bit SSL Encrypted & Bank-Grade Security</p>
+            </div>
+        </div>
+        <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; padding: 6px 14px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; color: #059669; font-size: 12px; font-weight: 700;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>PCI-DSS Verified</span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;" class="payment-grid-wrap">
+        <!-- Left: Payment Options -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 20px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+            <h2 style="font-size: 18px; margin-bottom: 18px;">Select Payment Method</h2>
+
+            <form method="post" action="{% url 'confirm_payment' %}" id="paymentForm">
+                {% csrf_token %}
+
+                <!-- Payment Tabs -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px;">
+                    <label class="pay-tab active" data-tab="upi">
+                        <input type="radio" name="payment_method" value="UPI" checked style="display: none;">
+                        <span class="pay-tab-icon">📱</span>
+                        <span class="pay-tab-label">UPI / QR</span>
+                    </label>
+
+                    <label class="pay-tab" data-tab="card">
+                        <input type="radio" name="payment_method" value="CARD" style="display: none;">
+                        <span class="pay-tab-icon">💳</span>
+                        <span class="pay-tab-label">Card</span>
+                    </label>
+
+                    <label class="pay-tab" data-tab="netbanking">
+                        <input type="radio" name="payment_method" value="NETBANKING" style="display: none;">
+                        <span class="pay-tab-icon">🏦</span>
+                        <span class="pay-tab-label">Net Banking</span>
+                    </label>
+
+                    <label class="pay-tab" data-tab="cod">
+                        <input type="radio" name="payment_method" value="COD" style="display: none;">
+                        <span class="pay-tab-icon">💵</span>
+                        <span class="pay-tab-label">Cash on Delivery</span>
+                    </label>
+                </div>
+
+                <!-- Tab 1: UPI -->
+                <div class="pay-content" id="tab-upi">
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px;">
+                        <span style="font-size: 13px; font-weight: 700; color: #1e40af; display: block; margin-bottom: 6px;">Supported UPI Apps:</span>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span class="payment-chip" style="background: #ffffff; color: #1e3a8a; border-color: #93c5fd;">Google Pay</span>
+                            <span class="payment-chip" style="background: #ffffff; color: #1e3a8a; border-color: #93c5fd;">PhonePe</span>
+                            <span class="payment-chip" style="background: #ffffff; color: #1e3a8a; border-color: #93c5fd;">Paytm</span>
+                            <span class="payment-chip" style="background: #ffffff; color: #1e3a8a; border-color: #93c5fd;">BHIM UPI</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="upi_id" style="font-weight: 600;">Enter your Virtual Payment Address (UPI ID)</label>
+                        <div class="input-icon-wrap">
+                            <span class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            </span>
+                            <input type="text" id="upi_id" name="upi_id" placeholder="e.g. mobile@okaxis, user@okhdfcbank" value="abhishek@okaxis">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 14px; padding: 16px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; margin-top: 14px;">
+                        <div style="width: 70px; height: 70px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-family: monospace; font-size: 10px; text-align: center; padding: 6px;">
+                            [QR CODE] SCAN & PAY
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px; color: #0f172a;">Scan QR with Any App</div>
+                            <div style="font-size: 12px; color: #64748b;">Scan using GPay, PhonePe or Paytm for zero-fee payment</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Credit / Debit Card -->
+                <div class="pay-content" id="tab-card" style="display: none;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <span class="payment-chip">VISA</span>
+                        <span class="payment-chip">MASTERCARD</span>
+                        <span class="payment-chip">RUPAY</span>
+                        <span class="payment-chip">AMEX</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card_number" style="font-weight: 600;">Card Number</label>
+                        <div class="input-icon-wrap">
+                            <span class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                            </span>
+                            <input type="text" id="card_number" name="card_number" maxlength="19" placeholder="4532 8900 1234 8920" value="4532 8900 1234 8920">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card_holder" style="font-weight: 600;">Cardholder Name</label>
+                        <div class="input-icon-wrap">
+                            <span class="input-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </span>
+                            <input type="text" id="card_holder" name="card_holder" placeholder="Name printed on card" value="{{ checkout_data.customer_name }}">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group">
+                            <label for="card_expiry" style="font-weight: 600;">Expiry Date</label>
+                            <input type="text" id="card_expiry" name="card_expiry" maxlength="5" placeholder="MM/YY" value="08/29">
+                        </div>
+                        <div class="form-group">
+                            <label for="card_cvv" style="font-weight: 600;">CVV / CVC</label>
+                            <input type="password" id="card_cvv" name="card_cvv" maxlength="4" placeholder="•••" value="892">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Net Banking -->
+                <div class="pay-content" id="tab-netbanking" style="display: none;">
+                    <div class="form-group">
+                        <label style="font-weight: 600; display: block; margin-bottom: 12px;">Choose Your Bank</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <label class="bank-pill active"><input type="radio" name="bank_name" value="HDFC Bank" checked> HDFC Bank</label>
+                            <label class="bank-pill"><input type="radio" name="bank_name" value="State Bank of India"> State Bank of India</label>
+                            <label class="bank-pill"><input type="radio" name="bank_name" value="ICICI Bank"> ICICI Bank</label>
+                            <label class="bank-pill"><input type="radio" name="bank_name" value="Axis Bank"> Axis Bank</label>
+                            <label class="bank-pill"><input type="radio" name="bank_name" value="Kotak Mahindra"> Kotak Mahindra</label>
+                            <label class="bank-pill"><input type="radio" name="bank_name" value="Punjab National Bank"> Punjab National Bank</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Cash on Delivery -->
+                <div class="pay-content" id="tab-cod" style="display: none;">
+                    <div style="background: #fffbeb; border: 1.5px solid #fef3c7; border-radius: 14px; padding: 18px 20px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">💵</span>
+                            <span style="font-weight: 800; font-size: 15px; color: #92400e;">Cash on Delivery Available</span>
+                        </div>
+                        <p style="color: #78350f; font-size: 13.5px; line-height: 1.5; margin: 0;">
+                            You can pay in cash or via UPI QR code directly to the delivery partner when your smartphone package arrives at your doorstep.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 26px;">
+                    <button type="submit" class="btn btn-full btn-with-icon" style="padding: 16px; font-size: 16px; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span id="btnPayText">Pay Securely ₹{{ total }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: Order & Delivery Summary -->
+        <div>
+            <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 20px; padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); margin-bottom: 18px;">
+                <h3 style="font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>
+                    <span>Order Summary</span>
+                </h3>
+
+                <div style="max-height: 200px; overflow-y: auto; margin-bottom: 14px;">
+                    {% for item in items %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13.5px;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-primary);">{{ item.product.name }}</div>
+                            <div style="color: var(--text-muted); font-size: 12px;">Qty: {{ item.quantity }} × ₹{{ item.product.price }}</div>
+                        </div>
+                        <div style="font-weight: 700;">₹{{ item.subtotal }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="border-top: 1px solid var(--border-light); padding-top: 12px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--text-muted);">
+                        <span>Subtotal:</span>
+                        <span>₹{{ total }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #15803d; font-weight: 600;">
+                        <span>Shipping:</span>
+                        <span>FREE</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text-muted);">
+                        <span>Taxes (GST 18%):</span>
+                        <span>Included</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--text-primary); border-top: 2px dashed #e2e8f0; padding-top: 10px;">
+                        <span>Total Payable:</span>
+                        <span style="color: #2563eb;">₹{{ total }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Address Card -->
+            <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Delivery Address</span>
+                </div>
+                <div style="font-weight: 700; color: #0f172a; font-size: 14px;">{{ checkout_data.customer_name }}</div>
+                <div style="color: #64748b; font-size: 13px; margin: 2px 0;">📞 {{ checkout_data.phone }}</div>
+                <div style="color: #475569; font-size: 12.5px; line-height: 1.4; margin-top: 4px;">{{ checkout_data.address }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pay-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 6px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.pay-tab:hover {
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+.pay-tab.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.12);
+}
+.pay-tab-icon {
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+.pay-tab-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.bank-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #ffffff;
+}
+.bank-pill.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+@media (max-width: 768px) {
+    .payment-grid-wrap {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.pay-tab');
+    const contents = document.querySelectorAll('.pay-content');
+    const btnText = document.getElementById('btnPayText');
+    const total = "{{ total }}";
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.style.display = 'none');
+
+            this.classList.add('active');
+            const targetId = 'tab-' + this.getAttribute('data-tab');
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.style.display = 'block';
+
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                if (radio.value === 'COD') {
+                    btnText.innerText = 'Place Order (Cash on Delivery ₹' + total + ')';
+                } else {
+                    btnText.innerText = 'Pay Securely ₹' + total;
+                }
+            }
+        });
+    });
+
+    const bankPills = document.querySelectorAll('.bank-pill');
+    bankPills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            bankPills.forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            const r = this.querySelector('input[type="radio"]');
+            if (r) r.checked = true;
+        });
+    });
+});
+</script>
+{% endblock %}

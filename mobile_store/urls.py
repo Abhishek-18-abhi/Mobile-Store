@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('products.urls')),
     path('accounts/', include('accounts.urls')),
     path('cart/', include('orders.urls')),
+    path('payment/', include('payment.urls')),
     path('neon/session/', views.neon_session, name='neon_session'),
     re_path(r'^media/(?P<path>.*)$', serve_media, name='serve_media'),
 ]

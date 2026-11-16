@@ -1,33 +1,88 @@
 {% extends 'base.html' %}
-{% block title %}Order Confirmed{% endblock %}
+{% block title %}Tax Invoice & Order Receipt{% endblock %}
 
 {% block content %}
-<div class="page" style="text-align: center; max-width: 580px; margin: 40px auto; padding: 48px 36px; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06); border: 1px solid var(--border-light);">
-    <div style="width: 76px; height: 76px; background: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #059669; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
+<div class="page" style="max-width: 680px; margin: 30px auto; padding: clamp(24px, 4vw, 40px); border-radius: 20px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.06); border: 1px solid var(--border-light);">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 72px; height: 72px; background: #ecfdf5; border: 2px solid #a7f3d0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #059669; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 5px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Payment Verified & Order Confirmed</span>
+        </div>
+
+        <h1 style="margin: 14px 0 6px; font-size: clamp(24px, 4vw, 30px);">Thank You for Your Purchase!</h1>
+        <p style="color: var(--text-muted); font-size: 14.5px; margin: 0;">
+            Your order has been recorded in our database and dispatched to our logistics team.
+        </p>
     </div>
 
-    <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 5px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>Payment & Order Confirmed</span>
+    {% if payment %}
+    <!-- Invoice Details Card -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; font-size: 13.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 14px;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Transaction Reference</span>
+                <strong style="color: #0f172a; font-family: monospace; font-size: 14px;">{{ payment.txn_id }}</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Payment Method</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px; color: #1e40af; font-weight: 700;">
+                    💳 {{ payment.payment_method }}
+                </span>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Recipient Name</span>
+                <strong style="color: #0f172a;">{{ payment.customer_name }}</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Contact Phone</span>
+                <span style="color: #0f172a;">{{ payment.phone }}</span>
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <span style="color: var(--text-muted); font-size: 12px; display: block; text-transform: uppercase; font-weight: 600;">Delivery Destination</span>
+                <span style="color: #334155; line-height: 1.4;">{{ payment.address }}</span>
+            </div>
+        </div>
+
+        <h4 style="margin: 0 0 10px; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Ordered Items</h4>
+        <div style="margin-bottom: 14px;">
+            {% for itm in payment.items %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13.5px;">
+                <span>{{ itm.name }} (×{{ itm.qty }})</span>
+                <span style="font-weight: 700; color: #0f172a;">₹{{ itm.subtotal }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="border-top: 1.5px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 800; color: #0f172a;">
+            <span>Total Paid (incl. GST):</span>
+            <span style="color: #059669; font-size: 20px;">₹{{ payment.total }}</span>
+        </div>
     </div>
+    {% endif %}
 
-    <h1 style="margin: 14px 0 10px; font-size: clamp(26px, 4vw, 32px);">Thank You for Your Order!</h1>
-    <p style="color: var(--text-secondary); font-size: 15px; line-height: 1.6; margin-bottom: 30px; max-width: 480px; margin-left: auto; margin-right: auto;">
-        Your smartphone order has been securely saved in our Neon database and dispatched to our fulfillment center. You will receive real-time SMS updates.
-    </p>
-
-    <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary btn-with-icon" onclick="window.print();">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Print Invoice</span>
+        </button>
         <a class="btn btn-with-icon" href="{% url 'order_history' %}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
                 <path d="m3.3 7 8.7 5 8.7-5"></path>
                 <path d="M12 22V12"></path>
             </svg>
-            <span>View Order History</span>
+            <span>View All Orders</span>
         </a>
         <a class="btn btn-secondary btn-with-icon" href="{% url 'products' %}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
