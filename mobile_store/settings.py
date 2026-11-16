@@ -13,16 +13,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env.local")
 
 # Security settings
-SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-prod-key-for-mobile-store")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-# Neon Authentication Configuration
-NEON_AUTH_BASE_URL = os.getenv("NEON_AUTH_BASE_URL")
-NEON_AUTH_JWKS_URL = os.getenv("NEON_AUTH_JWKS_URL")
 
-if not NEON_AUTH_BASE_URL or not NEON_AUTH_JWKS_URL:
-    raise RuntimeError("Neon Auth environment variables are missing.")
+# Neon Authentication Configuration (optional)
+NEON_AUTH_BASE_URL = os.getenv("NEON_AUTH_BASE_URL", "")
+NEON_AUTH_JWKS_URL = os.getenv("NEON_AUTH_JWKS_URL", "")
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "testserver",
+    ".vercel.app",
+    ".now.sh",
+    "*",
+]
+if os.getenv("VERCEL_URL"):
+    ALLOWED_HOSTS.append(os.getenv("VERCEL_URL"))
 
 # Application definition
 
@@ -102,17 +109,27 @@ USE_I18N = True
 USE_TZ = True
 
 # Static & Media files
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 
 # Default primary key field type (avoids Django warning)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS — allow all origins in development
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF trusted origins for Vercel deployment
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.now.sh',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+if os.getenv('VERCEL_URL'):
+    CSRF_TRUSTED_ORIGINS.append(f"https://{os.getenv('VERCEL_URL')}")
 
 # Django REST Framework
 REST_FRAMEWORK = {

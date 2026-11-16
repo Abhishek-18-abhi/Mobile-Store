@@ -10,3 +10,5 @@ db.sqlite3
 .env.*
 !.env.example
 node_modules/
+staticfiles/
+staticfiles_build/
