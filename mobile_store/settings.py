@@ -122,16 +122,6 @@ else:
 
 try:
     os.makedirs(MEDIA_ROOT / 'products', exist_ok=True)
-    prepackaged_media = BASE_DIR / 'media'
-    if prepackaged_media.exists() and MEDIA_ROOT != prepackaged_media:
-        import shutil
-        for item in prepackaged_media.iterdir():
-            dest = MEDIA_ROOT / item.name
-            if not dest.exists():
-                if item.is_dir():
-                    shutil.copytree(item, dest, dirs_exist_ok=True)
-                else:
-                    shutil.copy2(item, dest)
 except Exception:
     pass
 
