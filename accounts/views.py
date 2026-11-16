@@ -44,6 +44,8 @@ def signup(request):
             messages.error(request, 'Passwords do not match.')
         elif User.objects.filter(username__iexact=username).exists():
             messages.error(request, 'Username already exists. Please choose another.')
+        elif email and User.objects.filter(email__iexact=email).exists():
+            messages.error(request, 'An account with this email already exists. Please sign in instead.')
         else:
             User.objects.create_user(username=username, email=email, password=p1)
             messages.success(request, 'Account created successfully! Please log in.')
