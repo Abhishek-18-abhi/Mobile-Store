@@ -2,6 +2,7 @@
 Django settings for mobile_store project.
 """
 import os
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -21,7 +22,7 @@ NEON_AUTH_JWKS_URL = os.getenv("NEON_AUTH_JWKS_URL")
 if not NEON_AUTH_BASE_URL or not NEON_AUTH_JWKS_URL:
     raise RuntimeError("Neon Auth environment variables are missing.")
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
 
 # Application definition
 
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'orders.context_processors.cart_context',
             ],
         },
     },
@@ -75,21 +77,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mobile_store.wsgi.application'
 
-# Database — MySQL
+# Database — Neon PostgreSQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mobile_store_db',
-        'USER': 'root',
-        'PASSWORD': '',       # Set your MySQL root password here
-        'HOST': 'localhost',
-        'PORT': '3306',
-"OPTIONS": {
-    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-},
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=0,
+        ssl_require=True,
+    )
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -111,6 +106,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type (avoids Django warning)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
