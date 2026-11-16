@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Core Style with Cache Buster -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.6">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.7">
 
     <!-- Fallback Inlined Critical Layout Rules (Prevents Stale Cache Glitches) -->
     <style>
@@ -35,28 +35,86 @@
 
         /* User Profile Trigger & Dropdown Fallback */
         .user-dropdown-wrapper { position: relative; display: inline-block; }
-        .user-profile-trigger { display: inline-flex !important; align-items: center !important; gap: 9px !important; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(255, 255, 255, 0.16) !important; border-radius: 9999px !important; padding: 3px 14px 3px 4px !important; cursor: pointer !important; color: #ffffff !important; transition: all 0.2s ease !important; box-shadow: none !important; }
-        .user-profile-trigger:hover, .user-dropdown-wrapper.open .user-profile-trigger { background: rgba(255, 255, 255, 0.16) !important; border-color: rgba(96, 165, 250, 0.5) !important; }
-        .user-avatar-badge { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #4f46e5); color: #ffffff; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; justify-content: center; text-transform: uppercase; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4); flex-shrink: 0; }
-        .user-profile-meta { display: flex; flex-direction: column; text-align: left; line-height: 1.15; }
-        .user-profile-name { font-size: 13px; font-weight: 700; color: #f8fafc; letter-spacing: -0.2px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-profile-role { font-size: 10px; font-weight: 500; color: #94a3b8; text-transform: capitalize; }
+        .user-profile-trigger { display: inline-flex !important; align-items: center !important; gap: 8px !important; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 9999px !important; padding: 3px 12px 3px 4px !important; height: 38px !important; cursor: pointer !important; color: #ffffff !important; transition: all 0.2s ease !important; box-shadow: none !important; }
+        .user-profile-trigger:hover, .user-dropdown-wrapper.open .user-profile-trigger { background: rgba(255, 255, 255, 0.16) !important; border-color: rgba(96, 165, 250, 0.55) !important; }
+        .user-avatar-badge { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #ffffff; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; justify-content: center; text-transform: uppercase; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4); flex-shrink: 0; }
+        .user-profile-name { font-size: 13.5px; font-weight: 600; color: #f8fafc !important; letter-spacing: -0.2px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dropdown-chevron { color: #94a3b8; transition: transform 0.2s ease; flex-shrink: 0; }
         .user-dropdown-wrapper.open .dropdown-chevron { transform: rotate(180deg); }
-        .user-dropdown-menu { position: absolute; top: calc(100% + 8px); right: 0; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.25), 0 4px 12px rgba(0, 0, 0, 0.08); width: 250px; padding: 8px; z-index: 1200; display: none; }
+
+        .user-dropdown-menu { position: absolute; top: calc(100% + 10px); right: 0; background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 16px !important; box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px rgba(0, 0, 0, 0.06) !important; width: 260px; padding: 8px !important; z-index: 1200; display: none; }
         .user-dropdown-wrapper.open .user-dropdown-menu { display: block; }
-        .user-dropdown-header { padding: 8px 12px 10px; text-align: left; }
-        .user-dropdown-fullname { font-size: 14px; font-weight: 700; color: #0f172a; word-break: break-word; }
-        .user-dropdown-email { font-size: 12px; color: #64748b; margin-top: 2px; word-break: break-all; }
-        .user-dropdown-divider { height: 1px; background: #f1f5f9; margin: 6px 0; }
-        .user-dropdown-item { display: flex !important; align-items: center !important; gap: 10px !important; width: 100% !important; padding: 9px 12px !important; font-size: 13.5px !important; font-weight: 600 !important; color: #334155 !important; text-decoration: none !important; border-radius: 10px !important; background: transparent !important; border: none !important; cursor: pointer; transition: all 0.15s ease; box-sizing: border-box; text-align: left; }
-        .user-dropdown-item svg { color: #64748b; flex-shrink: 0; }
-        .user-dropdown-item:hover { background: #f8fafc !important; color: #0f172a !important; }
-        .user-dropdown-item:hover svg { color: #2563eb; }
-        .user-dropdown-item.sign-out-item { color: #dc2626 !important; }
-        .user-dropdown-item.sign-out-item svg { color: #dc2626 !important; }
-        .user-dropdown-item.sign-out-item:hover { background: #fef2f2 !important; color: #b91c1c !important; }
-        .user-dropdown-item.sign-out-item:hover svg { color: #b91c1c !important; }
+        .user-dropdown-header { padding: 10px 12px 10px; text-align: left; }
+        .user-dropdown-fullname { font-size: 14.5px; font-weight: 700; color: #0f172a !important; word-break: break-word; line-height: 1.25; }
+        .user-dropdown-email { font-size: 12px; font-weight: 500; color: #64748b !important; margin-top: 3px; word-break: break-all; }
+        .user-dropdown-divider { height: 1px; background: #e2e8f0 !important; margin: 6px 0 !important; }
+
+        /* Flaticon Style Action Items & High Contrast Overrides */
+        .nav-menu .user-dropdown-menu a,
+        .nav-menu .user-dropdown-menu button,
+        .user-dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+            padding: 8px 10px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            text-decoration: none !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.16s ease !important;
+            box-sizing: border-box !important;
+            text-align: left !important;
+            box-shadow: none !important;
+            transform: none !important;
+            min-height: unset !important;
+        }
+
+        .nav-menu .user-dropdown-menu a:hover,
+        .nav-menu .user-dropdown-menu button:hover,
+        .user-dropdown-item:hover {
+            background: #f1f5f9 !important;
+            color: #2563eb !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Flaticon Tinted Badges */
+        .dropdown-icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.18s ease;
+        }
+        .user-dropdown-item:hover .dropdown-icon-badge { transform: scale(1.08); }
+        .icon-profile { background: #eff6ff !important; }
+        .icon-orders { background: #fffbeb !important; }
+        .icon-settings { background: #f5f3ff !important; }
+        .icon-logout { background: #fef2f2 !important; }
+
+        /* Sign Out Item */
+        .nav-menu .user-dropdown-menu .sign-out-item,
+        .user-dropdown-item.sign-out-item {
+            color: #ef4444 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+        }
+
+        .nav-menu .user-dropdown-menu .sign-out-item:hover,
+        .user-dropdown-item.sign-out-item:hover {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
 
         @media (max-width: 992px) {
             .nav-container { flex-wrap: wrap; }
@@ -69,12 +127,7 @@
             .nav-menu form { width: 100%; }
             .nav-menu .user-dropdown-wrapper { width: 100%; }
             .nav-menu .user-profile-trigger { width: 100% !important; justify-content: space-between; border-radius: 8px !important; padding: 8px 12px !important; }
-            .nav-menu .user-dropdown-menu { position: static; width: 100%; margin-top: 8px; box-shadow: none; background: #0f172a; border: 1px solid #334155; }
-            .nav-menu .user-dropdown-fullname { color: #f8fafc; }
-            .nav-menu .user-dropdown-email { color: #94a3b8; }
-            .nav-menu .user-dropdown-divider { background: #334155; }
-            .nav-menu .user-dropdown-item { color: #e2e8f0 !important; }
-            .nav-menu .user-dropdown-item:hover { background: #1e293b !important; color: #ffffff !important; }
+            .nav-menu .user-dropdown-menu { position: static; width: 100%; margin-top: 8px; box-shadow: none; background: #ffffff !important; border: 1px solid #e2e8f0 !important; }
         }
     </style>
 </head>
@@ -125,15 +178,12 @@
             </a>
             
             {% if user.is_authenticated %}
-                <!-- Modern User Profile Badge & Dropdown -->
+                <!-- Modern User Profile Badge & Dropdown (Flaticon Style) -->
                 <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                     <button type="button" class="user-profile-trigger" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
                         <span class="user-avatar-badge">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
-                        <div class="user-profile-meta">
-                            <span class="user-profile-name">{{ user.get_full_name|default:user.username }}</span>
-                            <span class="user-profile-role">{% if user.is_staff %}Staff Admin{% else %}Customer{% endif %}</span>
-                        </div>
-                        <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <span class="user-profile-name">{{ user.first_name|default:user.username }}</span>
+                        <svg class="dropdown-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
@@ -146,27 +196,55 @@
 
                         <div class="user-dropdown-divider"></div>
 
+                        <!-- Profile Item with Flaticon-style Badge -->
                         <a href="{% url 'profile' %}" class="user-dropdown-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span class="dropdown-icon-badge icon-profile">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
                             <span>Profile</span>
                         </a>
+
+                        <!-- Orders Item with Flaticon-style Badge -->
                         <a href="{% url 'order_history' %}" class="user-dropdown-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                            <span class="dropdown-icon-badge icon-orders">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                </svg>
+                            </span>
                             <span>My Orders</span>
                         </a>
+
                         {% if user.is_staff %}
+                        <!-- Admin Panel with Flaticon-style Badge -->
                         <a href="/admin/" class="user-dropdown-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            <span>Admin Panel</span>
+                            <span class="dropdown-icon-badge icon-settings">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                </svg>
+                            </span>
+                            <span>Admin Dashboard</span>
                         </a>
                         {% endif %}
 
                         <div class="user-dropdown-divider"></div>
 
+                        <!-- Sign Out with Flaticon-style Badge -->
                         <form method="post" action="{% url 'logout' %}" style="margin: 0; width: 100%;">
                             {% csrf_token %}
                             <button type="submit" class="user-dropdown-item sign-out-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                <span class="dropdown-icon-badge icon-logout">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                        <polyline points="16 17 21 12 16 7"></polyline>
+                                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    </svg>
+                                </span>
                                 <span>Sign out</span>
                             </button>
                         </form>
@@ -204,7 +282,7 @@
             <a href="{% url 'order_history' %}">My Orders</a>
             <a href="{% url 'about' %}">About Us</a>
             <a href="{% url 'contact' %}">Support</a>
-            <a href="/admin/">Staff Admin</a>
+            <a href="/admin/">Admin</a>
         </div>
     </div>
     <p>© 2026 MobileStore — Responsive E-Commerce built with Django & Neon PostgreSQL.</p>

@@ -217,7 +217,7 @@ header {
 }
 
 /* ==========================================================================
-   User Profile Badge & Dropdown Menu
+   User Profile Badge & Dropdown Menu (Flaticon Style)
    ========================================================================== */
 .user-dropdown-wrapper {
     position: relative;
@@ -227,11 +227,12 @@ header {
 .user-profile-trigger {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 9px !important;
+    gap: 8px !important;
     background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     border-radius: 9999px !important;
-    padding: 3px 14px 3px 4px !important;
+    padding: 3px 12px 3px 4px !important;
+    height: 38px !important;
     cursor: pointer !important;
     color: #ffffff !important;
     transition: all 0.2s ease !important;
@@ -241,15 +242,15 @@ header {
 .user-profile-trigger:hover,
 .user-dropdown-wrapper.open .user-profile-trigger {
     background: rgba(255, 255, 255, 0.16) !important;
-    border-color: rgba(96, 165, 250, 0.5) !important;
+    border-color: rgba(96, 165, 250, 0.55) !important;
     transform: none !important;
 }
 
 .user-avatar-badge {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
     color: #ffffff;
     font-weight: 700;
     font-size: 13.5px;
@@ -257,33 +258,19 @@ header {
     align-items: center;
     justify-content: center;
     text-transform: uppercase;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
     flex-shrink: 0;
 }
 
-.user-profile-meta {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    line-height: 1.15;
-}
-
 .user-profile-name {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 13.5px;
+    font-weight: 600;
     color: #f8fafc;
     letter-spacing: -0.2px;
     max-width: 140px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.user-profile-role {
-    font-size: 10px;
-    font-weight: 500;
-    color: #94a3b8;
-    text-transform: capitalize;
 }
 
 .dropdown-chevron {
@@ -296,17 +283,17 @@ header {
     transform: rotate(180deg);
 }
 
-/* Dropdown Menu Popup */
+/* Dropdown Menu Card */
 .user-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 10px);
     right: 0;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.25), 0 4px 12px rgba(0, 0, 0, 0.08);
-    width: 250px;
-    padding: 8px;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px rgba(0, 0, 0, 0.06) !important;
+    width: 260px;
+    padding: 8px !important;
     z-index: 1200;
     display: none;
     animation: dropdownFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -319,7 +306,7 @@ header {
 @keyframes dropdownFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-6px) scale(0.98);
+        transform: translateY(-8px) scale(0.97);
     }
     to {
         opacity: 1;
@@ -328,79 +315,101 @@ header {
 }
 
 .user-dropdown-header {
-    padding: 8px 12px 10px;
+    padding: 10px 12px 10px;
     text-align: left;
 }
 
 .user-dropdown-fullname {
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 700;
-    color: #0f172a;
+    color: #0f172a !important;
     word-break: break-word;
+    line-height: 1.25;
 }
 
 .user-dropdown-email {
     font-size: 12px;
-    color: #64748b;
-    margin-top: 2px;
+    font-weight: 500;
+    color: #64748b !important;
+    margin-top: 3px;
     word-break: break-all;
 }
 
 .user-dropdown-divider {
     height: 1px;
-    background: #f1f5f9;
+    background: #e2e8f0;
     margin: 6px 0;
 }
 
+/* Flaticon Style Action Items */
+.user-dropdown-menu a,
+.user-dropdown-menu button,
 .user-dropdown-item {
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 12px !important;
     width: 100% !important;
-    padding: 9px 12px !important;
-    font-size: 13.5px !important;
+    padding: 8px 10px !important;
+    font-size: 14px !important;
     font-weight: 600 !important;
-    color: #334155 !important;
+    color: #1e293b !important;
     text-decoration: none !important;
     border-radius: 10px !important;
     background: transparent !important;
     border: none !important;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-sizing: border-box;
-    text-align: left;
+    cursor: pointer !important;
+    transition: all 0.16s ease !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+    box-shadow: none !important;
+    transform: none !important;
+    min-height: unset !important;
 }
 
-.user-dropdown-item svg {
-    color: #64748b;
-    flex-shrink: 0;
-    transition: color 0.15s ease;
-}
-
+.user-dropdown-menu a:hover,
+.user-dropdown-menu button:hover,
 .user-dropdown-item:hover {
-    background: #f8fafc !important;
-    color: #0f172a !important;
+    background: #f1f5f9 !important;
+    color: #2563eb !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
-.user-dropdown-item:hover svg {
-    color: #2563eb;
+/* Flaticon Tinted Icon Squircle */
+.dropdown-icon-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.18s ease;
 }
 
+.user-dropdown-item:hover .dropdown-icon-badge {
+    transform: scale(1.08);
+}
+
+.icon-profile { background: #eff6ff; }
+.icon-orders { background: #fffbeb; }
+.icon-settings { background: #f5f3ff; }
+.icon-logout { background: #fef2f2; }
+
+/* Sign Out Button (Neutral Red, No Blue Button Override) */
+.user-dropdown-menu .sign-out-item,
 .user-dropdown-item.sign-out-item {
-    color: #dc2626 !important;
+    color: #ef4444 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
 }
 
-.user-dropdown-item.sign-out-item svg {
-    color: #dc2626 !important;
-}
-
+.user-dropdown-menu .sign-out-item:hover,
 .user-dropdown-item.sign-out-item:hover {
     background: #fef2f2 !important;
-    color: #b91c1c !important;
-}
-
-.user-dropdown-item.sign-out-item:hover svg {
-    color: #b91c1c !important;
+    color: #dc2626 !important;
 }
 
 /* Mobile Nav Controls */
@@ -742,7 +751,7 @@ h3 {
    Buttons
    ========================================================================== */
 
-.btn, button[type="submit"]:not(.nav-logout-btn), .btn-primary {
+.btn, button[type="submit"]:not(.nav-logout-btn):not(.user-dropdown-item):not(.sign-out-item), .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -762,7 +771,7 @@ h3 {
     text-align: center;
 }
 
-.btn:hover, button[type="submit"]:not(.nav-logout-btn):hover {
+.btn:hover, button[type="submit"]:not(.nav-logout-btn):not(.user-dropdown-item):not(.sign-out-item):hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4) !important;
 }
