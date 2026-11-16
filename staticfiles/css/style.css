@@ -1177,3 +1177,280 @@ footer p {
         justify-content: center;
     }
 }
+
+/* ==========================================================================
+   Flaticon Style Modern Vector Badges & UI Elements
+   ========================================================================== */
+.flaticon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flaticon-badge-sm { width: 30px; height: 30px; border-radius: 8px; }
+.flaticon-badge-md { width: 42px; height: 42px; border-radius: 12px; }
+.flaticon-badge-lg { width: 54px; height: 54px; border-radius: 16px; }
+
+.flaticon-badge-blue { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+.flaticon-badge-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #ede9fe; }
+.flaticon-badge-green { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
+.flaticon-badge-amber { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+.flaticon-badge-red { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+.flaticon-badge-indigo { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; }
+
+/* Trust Grid & Cards */
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 34px;
+}
+
+.trust-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.22s ease;
+}
+
+.trust-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.07);
+    border-color: #cbd5e1;
+}
+
+.trust-card:hover .flaticon-badge {
+    transform: scale(1.08);
+}
+
+.trust-card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.trust-card-desc {
+    font-size: 12.5px;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.35;
+}
+
+/* Form Input with Icon Overlay */
+.input-icon-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-wrap .input-icon {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-icon-wrap input,
+.input-icon-wrap textarea {
+    padding-left: 42px !important;
+}
+
+.btn-with-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* Quantity Control */
+.quantity-pill {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 2px 4px;
+    gap: 6px;
+}
+
+.quantity-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.quantity-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+.quantity-num {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0f172a;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Remove Item Action */
+.action-trash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #ef4444;
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.16s ease;
+}
+
+.action-trash-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+/* Empty State */
+.empty-state-box {
+    text-align: center;
+    padding: 60px 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    max-width: 580px;
+    margin: 40px auto;
+}
+
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+/* Google OAuth Button */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    background: #ffffff;
+    color: #1e293b;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+    color: #0f172a;
+}
+
+/* Spec Chips on Product Cards */
+.card-spec-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 14px;
+}
+
+.spec-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.spec-chip svg {
+    color: #64748b;
+}
+
+/* Footer Payments and Trust Badges */
+.footer-trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px 0;
+    border-top: 1px solid #1e293b;
+    border-bottom: 1px solid #1e293b;
+    margin: 24px 0 20px;
+}
+
+.footer-trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.footer-trust-item svg {
+    color: #60a5fa;
+}
+
+.payment-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: #cbd5e1;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+

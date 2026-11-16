@@ -2,10 +2,14 @@
 {% block title %}Contact Support{% endblock %}
 
 {% block content %}
-<div class="form" style="max-width: 600px;">
+<div class="form" style="max-width: 620px;">
     <div style="text-align: center; margin-bottom: 24px;">
-        <span style="font-size: 38px; display: inline-block; margin-bottom: 8px;">📬</span>
-        <h1>Contact Support</h1>
+        <div class="flaticon-badge flaticon-badge-lg flaticon-badge-purple" style="margin: 0 auto 12px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </div>
+        <h1 style="margin: 0 0 6px; font-size: 26px;">Contact Support</h1>
         <p class="form-subtitle">Have questions about an order or a smartphone? We're here to help.</p>
     </div>
 
@@ -14,52 +18,89 @@
 
         <div class="form-group">
             <label for="name">Your Name</label>
-            <input
-                id="name"
-                type="text"
-                name="name"
-                value="{% if user.is_authenticated %}{{ user.username }}{% endif %}"
-                placeholder="Abhishek Thakkar"
-                required
-            >
+            <div class="input-icon-wrap">
+                <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </span>
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value="{% if user.is_authenticated %}{{ user.username }}{% endif %}"
+                    placeholder="Abhishek Thakkar"
+                    required
+                >
+            </div>
         </div>
 
         <div class="form-group">
             <label for="email">Email Address</label>
-            <input
-                id="email"
-                type="email"
-                name="email"
-                value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
-                placeholder="name@example.com"
-                required
-            >
+            <div class="input-icon-wrap">
+                <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                </span>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                    placeholder="name@example.com"
+                    required
+                >
+            </div>
         </div>
 
         <div class="form-group">
             <label for="subject">Subject</label>
-            <input
-                id="subject"
-                type="text"
-                name="subject"
-                placeholder="Inquiry about order, product, or warranty"
-                required
-            >
+            <div class="input-icon-wrap">
+                <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                </span>
+                <input
+                    id="subject"
+                    type="text"
+                    name="subject"
+                    placeholder="Inquiry about order, product, or warranty"
+                    required
+                >
+            </div>
         </div>
 
         <div class="form-group">
             <label for="message">Message</label>
-            <textarea
-                id="message"
-                name="message"
-                rows="4"
-                placeholder="Write your question or message here..."
-                required
-            ></textarea>
+            <div class="input-icon-wrap" style="align-items: flex-start;">
+                <span class="input-icon" style="top: 18px; transform: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </span>
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="4"
+                    placeholder="Write your question or message here..."
+                    required
+                ></textarea>
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-full">
-            ✉️ Send Message
+        <button type="submit" class="btn btn-full btn-with-icon" style="padding: 13px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Send Message</span>
         </button>
     </form>
 </div>
