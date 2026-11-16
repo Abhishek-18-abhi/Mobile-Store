@@ -1,36 +1,160 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{% block title %}Mobile Store{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mobile Store{% endblock %} - Smartphone Shop</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Core Style with Cache Buster -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.5">
+
+    <!-- Fallback Inlined Critical Layout Rules (Prevents Stale Cache Glitches) -->
+    <style>
+        header { background: #0b1329 !important; border-bottom: 1px solid #1e293b !important; position: sticky; top: 0; z-index: 1000; padding: 10px 0 !important; width: 100%; }
+        .nav-container { max-width: 1260px; margin: 0 auto; padding: 0 20px; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 16px; flex-wrap: nowrap; }
+        .brand { font-size: 22px; font-weight: 800; color: #ffffff !important; text-decoration: none !important; display: inline-flex !important; align-items: center !important; gap: 8px; white-space: nowrap; }
+        .brand span { color: #60a5fa !important; }
+        .nav-search { flex: 1; max-width: 440px; margin: 0 14px; position: relative; display: flex; align-items: center; }
+        .nav-search input { width: 100%; background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 9999px !important; padding: 9px 18px 9px 38px !important; color: #ffffff !important; font-size: 14px !important; outline: none; }
+        .nav-search .search-icon { position: absolute; left: 14px; color: #94a3b8; pointer-events: none; }
+        .nav-menu { display: flex !important; align-items: center !important; gap: 6px; white-space: nowrap; margin: 0; }
+        .nav-menu a { color: #cbd5e1 !important; text-decoration: none !important; font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .nav-menu a:hover { color: #ffffff !important; background: rgba(255, 255, 255, 0.1) !important; }
+        .badge-count { background: #ef4444; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 9999px; line-height: 1; }
+        .nav-logout-btn { background: transparent !important; border: 1px solid #334155 !important; color: #cbd5e1 !important; font-size: 13px !important; font-weight: 500 !important; padding: 7px 12px !important; border-radius: 8px !important; cursor: pointer; margin: 0 !important; box-shadow: none !important; }
+        .nav-logout-btn:hover { background: rgba(239, 68, 68, 0.18) !important; color: #fca5a5 !important; }
+        .mobile-nav-actions { display: none; }
+        .filter-bar { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 4px 0 14px; margin-bottom: 24px; }
+        .filter-pill { display: inline-flex !important; align-items: center !important; padding: 7px 18px !important; background: #ffffff !important; border: 1.5px solid #e2e8f0 !important; border-radius: 9999px !important; color: #475569 !important; font-size: 13.5px !important; font-weight: 600 !important; text-decoration: none !important; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .filter-pill.active { background: linear-gradient(135deg, #2563eb, #4f46e5) !important; border-color: #2563eb !important; color: #ffffff !important; box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3) !important; }
+        .footer-links a { color: #cbd5e1 !important; text-decoration: none !important; }
+        .footer-links a:hover { color: #ffffff !important; text-decoration: underline !important; }
+        @media (max-width: 992px) {
+            .nav-container { flex-wrap: wrap; }
+            .nav-search { order: 3; flex-basis: 100%; max-width: 100%; margin: 10px 0 0; }
+            .mobile-nav-actions { display: flex !important; }
+            .desktop-cart-link { display: none !important; }
+            .nav-menu { display: none !important; flex-direction: column !important; width: 100%; order: 4; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; margin-top: 12px; }
+            .nav-menu.show { display: flex !important; }
+            .nav-menu a { width: 100%; }
+            .nav-menu form { width: 100%; }
+            .nav-menu .nav-logout-btn { width: 100%; text-align: left; }
+        }
+    </style>
 </head>
 <body>
+
 <header>
-    <a class="brand" href="{% url 'home' %}">MobileStore</a>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'about' %}">About</a>
-        <a href="{% url 'products' %}">Products</a>
-        <a href="{% url 'contact' %}">Contact Us</a>
-        <a href="{% url 'cart' %}">Cart</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'profile' %}">Profile</a>
-            <form method="post" action="{% url 'logout' %}" data-auth-logout>
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>{% else %}
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'signup' %}">Signup</a>
-        {% endif %}
-    </nav>
+    <div class="nav-container">
+        <!-- Logo -->
+        <a class="brand" href="{% url 'home' %}">
+            <span class="brand-icon">📱</span>
+            Mobile<span>Store</span>
+        </a>
+
+        <!-- Global Search Bar -->
+        <form class="nav-search" method="get" action="{% url 'products' %}">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="q" placeholder="Search smartphones, brands..." value="{{ query|default:'' }}">
+        </form>
+
+        <!-- Mobile Quick Actions -->
+        <div class="mobile-nav-actions">
+            <a href="{% url 'cart' %}" class="mobile-cart-btn" aria-label="Cart">
+                🛒
+                {% if cart_count %}
+                    <span class="badge-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            <button type="button" class="mobile-menu-toggle" aria-label="Toggle navigation menu" id="mobileMenuBtn">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav id="navLinks" class="nav-menu">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'products' %}">All Phones</a>
+            <a href="{% url 'order_history' %}">My Orders</a>
+            <a href="{% url 'about' %}">About</a>
+            <a href="{% url 'contact' %}">Contact</a>
+            
+            <a href="{% url 'cart' %}" class="desktop-cart-link">
+                🛒 Cart
+                {% if cart_count %}
+                    <span class="badge-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="user-pill">👤 {{ user.username }}</a>
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-logout-btn">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Sign In</a>
+                <a href="{% url 'signup' %}" class="nav-cta">Sign Up</a>
+            {% endif %}
+        </nav>
+    </div>
 </header>
-<main>{% if messages %}{% for message in messages %}
-    <div class="message">{{ message }}</div>
-{% endfor %}{% endif %}{% block content %}{% endblock %}</main>
-<footer>© 2026 MobileStore. BCA Django Project.</footer>
-<script type="module" src="{% static 'dist/auth.js' %}"></script>
+
+<main>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">
+                <span>💬</span>
+                <div>{{ message }}</div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            📱 MobileStore
+        </div>
+        <div class="footer-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'products' %}">Phones</a>
+            <a href="{% url 'order_history' %}">My Orders</a>
+            <a href="{% url 'about' %}">About Us</a>
+            <a href="{% url 'contact' %}">Support</a>
+            <a href="/admin/">Staff Admin</a>
+        </div>
+    </div>
+    <p>© 2026 MobileStore — Responsive E-Commerce built with Django & Neon PostgreSQL.</p>
+</footer>
+
+<!-- Responsive Menu Toggle Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navLinks');
+        if (toggleBtn && navMenu) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                navMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', function(e) {
+                if (!navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    navMenu.classList.remove('show');
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

@@ -1,50 +1,71 @@
 {% extends 'base.html' %}
-
-{% block title %}
-Checkout
-{% endblock %}
+{% block title %}Checkout{% endblock %}
 
 {% block content %}
+<div style="max-width: 680px; margin: 30px auto;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <h1>📦 Complete Your Order</h1>
+        <p style="color: var(--text-muted); font-size: 15px;">Please provide your shipping details to place the order.</p>
+    </div>
 
-<form method="POST" class="form">
+    <form method="POST" class="form" style="max-width: 100%;">
+        {% csrf_token %}
 
-    {% csrf_token %}
+        <div style="background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 18px 24px; margin-bottom: 26px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="font-size: 13px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Amount to Pay</span>
+                <div style="font-size: 28px; font-weight: 800; color: #1e3a8a;">₹{{ total }}</div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 12px; background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full);">🚚 Free Delivery</span>
+            </div>
+        </div>
 
-    <h1>Checkout</h1>
+        <div class="form-group">
+            <label for="customer_name">Full Name *</label>
+            <input
+                id="customer_name"
+                type="text"
+                name="customer_name"
+                value="{% if user.is_authenticated %}{{ user.username }}{% endif %}"
+                placeholder="e.g. Abhishek Thakkar"
+                required
+            >
+        </div>
 
-    <p>
-        Order Total:
-        <strong>₹{{ total }}</strong>
-    </p>
+        <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input
+                id="phone"
+                type="tel"
+                name="phone"
+                placeholder="e.g. +91 9876543210"
+                required
+            >
+        </div>
 
-    <label>Full Name</label>
+        <div class="form-group">
+            <label for="address">Delivery Address *</label>
+            <textarea
+                id="address"
+                name="address"
+                rows="3"
+                placeholder="Flat / House No., Street, City, State, PIN Code"
+                required
+            ></textarea>
+        </div>
 
-    <input
-        type="text"
-        name="customer_name"
-        required
-    >
+        <div style="margin-top: 24px;">
+            <button type="submit" class="btn btn-full" style="padding: 15px; font-size: 16px;">
+                💳 Confirm & Place Order (₹{{ total }})
+            </button>
+        </div>
 
-    <label>Address</label>
-
-    <textarea
-        name="address"
-        rows="4"
-        required
-    ></textarea>
-
-    <label>Phone</label>
-
-    <input
-        type="tel"
-        name="phone"
-        required
-    >
-
-    <button type="submit">
-        Place Order
-    </button>
-
-</form>
-
+        <div style="text-align: center; margin-top: 16px;">
+            <a href="{% url 'cart' %}" style="color: var(--text-muted); font-size: 14px; text-decoration: none;">
+                ← Back to Cart
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}

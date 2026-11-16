@@ -1,1 +1,38 @@
-{% extends 'base.html' %}{% block title %}About{% endblock %}{% block content %}<section class="page"><h1>About Us</h1><p>MobileStore is a Django e-commerce project for browsing smartphones, managing a cart and placing orders.</p></section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width: 860px; margin: 20px auto;">
+    <div style="text-align: center; margin-bottom: 36px;">
+        <span class="hero-badge" style="background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe;">Our Mission</span>
+        <h1>About MobileStore</h1>
+        <p style="color: var(--text-muted); font-size: 16px; max-width: 600px; margin: auto;">
+            We deliver the world's most innovative smartphones directly to your doorstep with guaranteed authenticity, transparent pricing, and instant support.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 30px;">
+        <div style="padding: 24px; background: var(--bg-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+            <div style="font-size: 32px; margin-bottom: 12px;">🛡️</div>
+            <h3>100% Genuine Devices</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 6px;">Every mobile phone is authentic, brand-new, and backed by full manufacturer warranty.</p>
+        </div>
+
+        <div style="padding: 24px; background: var(--bg-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+            <div style="font-size: 32px; margin-bottom: 12px;">⚡</div>
+            <h3>Fast & Free Shipping</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 6px;">Express insured delivery across all major pin codes with real-time tracking.</p>
+        </div>
+
+        <div style="padding: 24px; background: var(--bg-subtle); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+            <div style="font-size: 32px; margin-bottom: 12px;">🔒</div>
+            <h3>Secure Cloud Platform</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 6px;">Powered by Django 6 & Neon Serverless PostgreSQL with enterprise-level encryption.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-light);">
+        <a class="btn" href="{% url 'products' %}">Explore Our Catalog →</a>
+    </div>
+</div>
+{% endblock %}

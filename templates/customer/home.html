@@ -1,35 +1,90 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
+
 {% block content %}
-<section class="hero">
-    <h1>Find Your Next Smartphone</h1>
-    <p>Explore mobiles from leading brands at great prices.</p>
-    <a class="btn" href="{% url 'products' %}">Shop Now</a>
+<section class="hero" style="background: linear-gradient(135deg, #0b1329 0%, #1e293b 60%, #172554 100%); color: #ffffff; padding: clamp(36px, 5vw, 60px) clamp(20px, 4vw, 40px); border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); margin-bottom: 36px; border: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(96, 165, 250, 0.35); color: #93c5fd; padding: 5px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px;">
+        ⚡ 2026 Flagship & 5G Smartphones
+    </div>
+    <h1 style="color: #ffffff; font-size: clamp(28px, 4.5vw, 44px); font-weight: 800; line-height: 1.2; margin-bottom: 14px; max-width: 700px;">
+        Upgrade to Your Next Dream Phone
+    </h1>
+    <p style="color: #cbd5e1; font-size: clamp(15px, 2vw, 17px); max-width: 580px; margin-bottom: 26px; line-height: 1.55;">
+        Discover top-tier smartphones from Apple, Samsung, OnePlus, Google and more with secure ordering and rapid delivery.
+    </p>
+    <a class="btn" href="{% url 'products' %}">Browse All Phones →</a>
 </section>
 
-<h2>Featured Products</h2>
+<!-- Brand Quick Filter Bar -->
+{% if brands %}
+<div style="margin-bottom: 28px;">
+    <h3 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">
+        Popular Brands
+    </h3>
+    <div class="filter-bar">
+        <a href="{% url 'products' %}" class="filter-pill active">All Brands</a>
+        {% for b in brands %}
+            <a href="{% url 'products' %}?brand={{ b }}" class="filter-pill">{{ b }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+    <div>
+        <h2>Featured Smartphones</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Handpicked bestsellers available in our store</p>
+    </div>
+    <a href="{% url 'products' %}" style="color: var(--primary); font-weight: 600; text-decoration: none; font-size: 14px;">View All ({{ products.count }}) →</a>
+</div>
+
 <div class="grid">
     {% for product in products %}
     <div class="card">
-        {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-        {% else %}
-            <div class="product-placeholder">📱</div>
+        <div class="product-image-wrap">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+                <div class="product-placeholder">📱</div>
+            {% endif %}
+        </div>
+
+        <span class="brand-badge">{{ product.brand }}</span>
+        <h3>{{ product.name }}</h3>
+        
+        {% if product.description %}
+            <p>{{ product.description|truncatewords:15 }}</p>
         {% endif %}
 
-        <h3>{{ product.name }}</h3>
-        <p>Brand: {{ product.brand }}</p>
-        <p>{{ product.description }}</p>
-        <strong>₹{{ product.price }}</strong>
+        <div class="price-row">
+            <div>
+                <span style="font-size: 11px; color: var(--text-muted); display: block; text-transform: uppercase;">Price</span>
+                <span class="product-price">₹{{ product.price }}</span>
+            </div>
+            {% if product.stock > 0 %}
+                <span class="stock-tag stock-in">In Stock ({{ product.stock }})</span>
+            {% else %}
+                <span class="stock-tag stock-out">Sold Out</span>
+            {% endif %}
+        </div>
 
         {% if product.stock > 0 %}
-            <a class="btn" href="{% url 'add_to_cart' product.id %}">Add to Cart</a>
+            <a class="btn btn-full" href="{% url 'add_to_cart' product.id %}">
+                🛒 Add to Cart
+            </a>
         {% else %}
-            <span class="danger">Out of stock</span>
+            <button class="btn btn-full" style="background: #94a3b8; cursor: not-allowed;" disabled>
+                Out of Stock
+            </button>
         {% endif %}
     </div>
     {% empty %}
-        <p>No products yet. Add products from the Django admin panel.</p>
+        <div class="page" style="grid-column: 1 / -1; text-align: center; padding: 50px 20px;">
+            <p style="font-size: 40px; margin-bottom: 10px;">📦</p>
+            <h3>No smartphones available yet</h3>
+            <p style="color: var(--text-muted); margin: 10px 0 20px;">Add products from the Django admin dashboard to see them appear here.</p>
+            <a class="btn" href="/admin/">Go to Django Admin</a>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

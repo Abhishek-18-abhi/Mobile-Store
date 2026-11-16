@@ -1,31 +1,83 @@
 {% extends 'base.html' %}
-{% block title %}Products{% endblock %}
+{% block title %}All Smartphones{% endblock %}
+
 {% block content %}
-<h1>Products</h1>
+<div style="margin-bottom: 24px;">
+    <h1>All Available Smartphones</h1>
+    <p style="color: var(--text-muted); font-size: 15px;">Explore our catalog of authentic, certified smartphones.</p>
+</div>
+
+<!-- Brand Filter Pills (Responsive scroll on mobile) -->
+<div class="filter-bar">
+    <a href="{% url 'products' %}{% if query %}?q={{ query }}{% endif %}" class="filter-pill {% if not selected_brand %}active{% endif %}">
+        All Brands ({{ total_count }})
+    </a>
+    {% for b in brands %}
+        <a href="{% url 'products' %}?brand={{ b }}{% if query %}&q={{ query }}{% endif %}" class="filter-pill {% if selected_brand|lower == b|lower %}active{% endif %}">
+            {{ b }}
+        </a>
+    {% endfor %}
+</div>
+
+{% if query or selected_brand %}
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 10px 16px; background: var(--bg-subtle); border-radius: var(--radius-md); font-size: 14px;">
+        <span>
+            Filtered by:
+            {% if query %}<strong>Query: "{{ query }}"</strong>{% endif %}
+            {% if query and selected_brand %} | {% endif %}
+            {% if selected_brand %}<strong>Brand: {{ selected_brand }}</strong>{% endif %}
+        </span>
+        <a href="{% url 'products' %}" style="color: var(--primary); font-weight: 600; text-decoration: none;">Clear Filter ✕</a>
+    </div>
+{% endif %}
 
 <div class="grid">
     {% for product in products %}
     <div class="card">
-        {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-        {% else %}
-            <div class="product-placeholder">📱</div>
+        <div class="product-image-wrap">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+                <div class="product-placeholder">📱</div>
+            {% endif %}
+        </div>
+
+        <span class="brand-badge">{{ product.brand }}</span>
+        <h3>{{ product.name }}</h3>
+
+        {% if product.description %}
+            <p>{{ product.description|truncatewords:18 }}</p>
         {% endif %}
 
-        <h3>{{ product.name }}</h3>
-        <p>Brand: {{ product.brand }}</p>
-        <p>{{ product.description }}</p>
-        <p>Stock: {{ product.stock }}</p>
-        <strong>₹{{ product.price }}</strong>
+        <div class="price-row">
+            <div>
+                <span style="font-size: 11px; color: var(--text-muted); display: block; text-transform: uppercase;">Price</span>
+                <span class="product-price">₹{{ product.price }}</span>
+            </div>
+            {% if product.stock > 0 %}
+                <span class="stock-tag stock-in">In Stock ({{ product.stock }})</span>
+            {% else %}
+                <span class="stock-tag stock-out">Out of Stock</span>
+            {% endif %}
+        </div>
 
         {% if product.stock > 0 %}
-            <a class="btn" href="{% url 'add_to_cart' product.id %}">Add to Cart</a>
+            <a class="btn btn-full" href="{% url 'add_to_cart' product.id %}">
+                🛒 Add to Cart
+            </a>
         {% else %}
-            <span class="danger">Out of stock</span>
+            <button class="btn btn-full" style="background: #94a3b8; cursor: not-allowed;" disabled>
+                Out of Stock
+            </button>
         {% endif %}
     </div>
     {% empty %}
-        <p>No products available. Add them from the Django admin panel.</p>
+        <div class="page" style="grid-column: 1 / -1; text-align: center; padding: 50px 20px;">
+            <p style="font-size: 44px; margin-bottom: 12px;">🔍</p>
+            <h3>No smartphones match your search</h3>
+            <p style="color: var(--text-muted); margin: 10px 0 20px;">Try adjusting your search terms or filters.</p>
+            <a class="btn" href="{% url 'products' %}">Reset All Filters</a>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

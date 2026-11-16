@@ -1,54 +1,74 @@
-
 {% extends 'base.html' %}
-
-{% block title %}Signup{% endblock %}
+{% block title %}Create Account{% endblock %}
 
 {% block content %}
+<div class="form">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <span style="font-size: 38px; display: inline-block; margin-bottom: 8px;">✨</span>
+        <h1>Create Account</h1>
+        <p class="form-subtitle">Join MobileStore to buy smartphones and track deliveries.</p>
+    </div>
 
-<form class="form" method="post" data-auth-form="signup">
-    {% csrf_token %}
+    <form method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
 
-    <h1>Create Account</h1>
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input
+                id="username"
+                type="text"
+                name="username"
+                placeholder="Choose a username"
+                required
+                autocomplete="username"
+            >
+        </div>
 
-    <label>Username</label>
-    <input
-        type="text"
-        name="username"
-        required
-        autocomplete="name"
-    >
+        <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="name@example.com"
+                required
+                autocomplete="email"
+            >
+        </div>
 
-    <label>Email</label>
-    <input
-        type="email"
-        name="email"
-        required
-        autocomplete="email"
-    >
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="At least 8 characters"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
+        </div>
 
-    <label>Password</label>
-    <input
-        type="password"
-        name="password"
-        required
-        minlength="8"
-        autocomplete="new-password"
-    >
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password *</label>
+            <input
+                id="confirm_password"
+                type="password"
+                name="confirm_password"
+                placeholder="Re-enter password"
+                required
+                minlength="8"
+                autocomplete="new-password"
+            >
+        </div>
 
-    <label>Confirm Password</label>
-    <input
-        type="password"
-        name="confirm_password"
-        required
-        minlength="8"
-        autocomplete="new-password"
-    >
+        <button type="submit" class="btn btn-full">
+            Register Account →
+        </button>
+    </form>
 
-    <button type="submit">Create Account</button>
-
-    <p>Already registered?
-        <a href="{% url 'login' %}">Login</a>
-    </p>
-</form>
-
+    <div class="form-footer-text">
+        Already registered? <a href="{% url 'login' %}">Sign in here</a>
+    </div>
+</div>
 {% endblock %}

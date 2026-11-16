@@ -15,28 +15,49 @@ from django.views.decorators.http import require_POST
 
 
 def login_view(request):
-    if request.method=='POST':
-        user=authenticate(request,username=request.POST.get('username'),password=request.POST.get('password'))
-        if user: login(request,user); return redirect('home')
-        messages.error(request,'Invalid username or password.')
-    return render(request,'customer/login.html')
+    if request.method == 'POST':
+        login_input = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        
+        user = authenticate(request, username=login_input, password=password)
+        if not user:
+            try:
+                user_obj = User.objects.get(email__iexact=login_input)
+                user = authenticate(request, username=user_obj.username, password=password)
+            except (User.DoesNotExist, User.MultipleObjectsReturned):
+                user = None
+
+        if user:
+            login(request, user)
+            return redirect('home')
+        messages.error(request, 'Invalid username/email or password.')
+    return render(request, 'customer/login.html')
+
+
 def signup(request):
-    if request.method=='POST':
-        username=request.POST.get('username'); email=request.POST.get('email'); p1=request.POST.get('password'); p2=request.POST.get('confirm_password')
-        if p1!=p2: messages.error(request,'Passwords do not match.')
-        elif User.objects.filter(username=username).exists(): messages.error(request,'Username already exists.')
-        else: User.objects.create_user(username=username,email=email,password=p1); messages.success(request,'Account created. Please login.'); return redirect('login')
-    return render(request,'customer/register.html')
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        p1 = request.POST.get('password', '')
+        p2 = request.POST.get('confirm_password', '')
+        if p1 != p2:
+            messages.error(request, 'Passwords do not match.')
+        elif User.objects.filter(username__iexact=username).exists():
+            messages.error(request, 'Username already exists. Please choose another.')
+        else:
+            User.objects.create_user(username=username, email=email, password=p1)
+            messages.success(request, 'Account created successfully! Please log in.')
+            return redirect('login')
+    return render(request, 'customer/register.html')
 
 
 from django.views.decorators.csrf import csrf_protect
 
 
-@require_POST
 @csrf_protect
 def logout_view(request):
     logout(request)
-    return JsonResponse({"success": True})
+    return redirect('home')
 
 
 def profile(request): return render(request,'customer/profile.html')

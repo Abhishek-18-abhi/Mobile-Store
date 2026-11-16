@@ -1,1 +1,66 @@
-{% extends 'base.html' %}{% block title %}Contact{% endblock %}{% block content %}<form class="form"><h1>Contact Us</h1><label>Name</label><input required><label>Email</label><input type="email" required><label>Subject</label><input><label>Message</label><textarea rows="5"></textarea><button type="button">Send Message</button></form>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Contact Support{% endblock %}
+
+{% block content %}
+<div class="form" style="max-width: 600px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <span style="font-size: 38px; display: inline-block; margin-bottom: 8px;">📬</span>
+        <h1>Contact Support</h1>
+        <p class="form-subtitle">Have questions about an order or a smartphone? We're here to help.</p>
+    </div>
+
+    <form method="post" action="{% url 'contact' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">Your Name</label>
+            <input
+                id="name"
+                type="text"
+                name="name"
+                value="{% if user.is_authenticated %}{{ user.username }}{% endif %}"
+                placeholder="Abhishek Thakkar"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                placeholder="name@example.com"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <input
+                id="subject"
+                type="text"
+                name="subject"
+                placeholder="Inquiry about order, product, or warranty"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea
+                id="message"
+                name="message"
+                rows="4"
+                placeholder="Write your question or message here..."
+                required
+            ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-full">
+            ✉️ Send Message
+        </button>
+    </form>
+</div>
+{% endblock %}
