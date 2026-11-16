@@ -113,7 +113,28 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# Use writable /tmp directory on Vercel serverless to prevent Errno 30 Read-only filesystem error
+if os.environ.get('VERCEL') or not os.access(BASE_DIR, os.W_OK):
+    MEDIA_ROOT = Path('/tmp') / 'media'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+try:
+    os.makedirs(MEDIA_ROOT / 'products', exist_ok=True)
+    prepackaged_media = BASE_DIR / 'media'
+    if prepackaged_media.exists() and MEDIA_ROOT != prepackaged_media:
+        import shutil
+        for item in prepackaged_media.iterdir():
+            dest = MEDIA_ROOT / item.name
+            if not dest.exists():
+                if item.is_dir():
+                    shutil.copytree(item, dest, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(item, dest)
+except Exception:
+    pass
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 

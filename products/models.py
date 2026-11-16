@@ -11,7 +11,24 @@ class Product(models.Model):
         blank=True,
         null=True
     )
+    image_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="Direct image URL (optional)"
+    )
     description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def get_image_url(self):
+        if self.image_url:
+            return self.image_url
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return None
