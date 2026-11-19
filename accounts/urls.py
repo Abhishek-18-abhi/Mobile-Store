@@ -1,11 +1,19 @@
 from django.urls import path
-from . import views
+from .views import (
+    login_view,
+    signup,
+    verify_otp,
+    resend_otp,
+    logout_view,
+    profile,
+)
 
 urlpatterns = [
-    path('login/', views.login_view, name='login'),
-    path('signup/', views.signup, name='signup'),
-    path('verify-otp/', views.verify_otp, name='verify_otp'),
-    path('resend-otp/', views.resend_otp, name='resend_otp'),
-    path('logout/', views.logout_view, name='logout'),
-    path('profile/', views.profile, name='profile'),
+    path('login/', login_view, name='login'),
+    path('signup/', signup, name='signup'),
+    path('verify-otp/', verify_otp, name='verify_otp'),
+    path('resend-otp/', resend_otp, name='resend_otp'),
+    path('logout/', logout_view, name='logout'),
+    path('profile/', profile, name='profile'),
 ]
+
