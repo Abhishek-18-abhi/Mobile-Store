@@ -70,6 +70,7 @@ def confirm_payment(request):
         qty = item['quantity']
 
         Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,
             customer_name=customer_name,
             phone=phone,
             address=address,

@@ -1,24 +1,23 @@
-import json
 import logging
-from urllib.parse import urlsplit
-
-import jwt
-from jwt import PyJWKClient
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.db import transaction
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.http import require_POST
 
 from .models import EmailVerificationOTP
 
 logger = logging.getLogger(__name__)
+
+
+def is_smtp_active():
+    """Returns True only if real external SMTP credentials are provided."""
+    user = getattr(settings, 'EMAIL_HOST_USER', '')
+    pwd = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+    backend = getattr(settings, 'EMAIL_BACKEND', '')
+    return bool(user and pwd and 'console' not in backend.lower())
 
 
 def mask_email(email):
@@ -34,6 +33,10 @@ def mask_email(email):
 
 
 def send_otp_email(user, otp_code):
+    """Attempts to deliver the OTP code via email. Returns True on success, False otherwise."""
+    if not is_smtp_active():
+        return False
+
     subject = f"{otp_code} is your MobileStore verification code"
     text_content = (
         f"Hello {user.username},\n\n"
@@ -83,7 +86,7 @@ def login_view(request):
         login_input = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
-        # 1. First check if credentials match an unverified/inactive user
+        # 1. Check if credentials match an unverified/inactive user
         unverified_user = None
         try:
             u = User.objects.get(username__iexact=login_input)
@@ -103,9 +106,11 @@ def login_view(request):
             request.session['pending_otp_user_id'] = unverified_user.id
 
             if email_sent:
-                messages.warning(request, f'Your account is pending verification. A new 6-digit code has been sent to {mask_email(unverified_user.email)}.')
+                request.session.pop('demo_otp', None)
+                messages.warning(request, f'Account is pending verification. A new 6-digit code was sent to {mask_email(unverified_user.email)}.')
             else:
-                messages.info(request, f'Demo Mode (SMTP not configured): Verification code is {otp.otp_code}')
+                request.session['demo_otp'] = otp.otp_code
+                messages.info(request, f'SMTP is in test mode. Your verification code is: {otp.otp_code}')
 
             return redirect('verify_otp')
 
@@ -120,6 +125,7 @@ def login_view(request):
 
         if user:
             login(request, user)
+            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
             return redirect('home')
         messages.error(request, 'Invalid username/email or password.')
     return render(request, 'customer/login.html')
@@ -133,11 +139,11 @@ def signup(request):
         p2 = request.POST.get('confirm_password', '')
 
         if p1 != p2:
-            messages.error(request, 'Passwords do not match.')
+            messages.error(request, 'Passwords do not match. Please verify and re-enter.')
         elif not email:
             messages.error(request, 'A valid email address is required for verification.')
         elif User.objects.filter(username__iexact=username, is_active=True).exists():
-            messages.error(request, 'Username already exists. Please choose another.')
+            messages.error(request, 'Username already registered. Please choose another username.')
         elif User.objects.filter(email__iexact=email, is_active=True).exists():
             messages.error(request, 'An active account with this email already exists. Please sign in.')
         else:
@@ -163,9 +169,11 @@ def signup(request):
             request.session['pending_otp_user_id'] = user.id
 
             if email_sent:
+                request.session.pop('demo_otp', None)
                 messages.success(request, f'Verification code sent to {mask_email(email)}! Enter the 6-digit code below.')
             else:
-                messages.info(request, f'Demo Mode (SMTP not configured): Your verification code is {otp.otp_code}')
+                request.session['demo_otp'] = otp.otp_code
+                messages.info(request, f'Test Mode: Your verification code is {otp.otp_code}.')
 
             return redirect('verify_otp')
     return render(request, 'customer/register.html')
@@ -181,10 +189,12 @@ def verify_otp(request):
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         request.session.pop('pending_otp_user_id', None)
+        request.session.pop('demo_otp', None)
         return redirect('signup')
 
     if user.is_active:
         request.session.pop('pending_otp_user_id', None)
+        request.session.pop('demo_otp', None)
         return redirect('home')
 
     if request.method == 'POST':
@@ -192,7 +202,7 @@ def verify_otp(request):
         active_otp = EmailVerificationOTP.objects.filter(user=user, is_used=False).first()
 
         if not active_otp or not active_otp.is_valid():
-            messages.error(request, 'Verification code has expired or is invalid. Please click "Resend Code".')
+            messages.error(request, 'Verification code has expired or is invalid. Click "Resend Code" below.')
         else:
             active_otp.attempts += 1
             if active_otp.attempts > 5:
@@ -206,6 +216,7 @@ def verify_otp(request):
                 user.save()
 
                 request.session.pop('pending_otp_user_id', None)
+                request.session.pop('demo_otp', None)
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(request, f'Account activated successfully! Welcome to MobileStore, {user.first_name or user.username}.')
                 return redirect('home')
@@ -214,16 +225,26 @@ def verify_otp(request):
                 remaining = 5 - active_otp.attempts
                 messages.error(request, f'Incorrect code. {remaining} attempt(s) remaining.')
 
+    demo_otp = request.session.get('demo_otp')
+    # If no demo_otp in session but user has an active OTP and SMTP is not active, retrieve it
+    if not demo_otp and not is_smtp_active():
+        active_otp = EmailVerificationOTP.objects.filter(user=user, is_used=False).first()
+        if active_otp and active_otp.is_valid():
+            demo_otp = active_otp.otp_code
+            request.session['demo_otp'] = demo_otp
+
     masked = mask_email(user.email)
     return render(request, 'customer/verify_otp.html', {
         'masked_email': masked,
         'user_obj': user,
+        'demo_otp': demo_otp,
     })
 
 
 def resend_otp(request):
     user_id = request.session.get('pending_otp_user_id')
     if not user_id:
+        messages.info(request, 'Please register or log in to request a code.')
         return redirect('signup')
 
     try:
@@ -238,120 +259,24 @@ def resend_otp(request):
     email_sent = send_otp_email(user, otp.otp_code)
 
     if email_sent:
+        request.session.pop('demo_otp', None)
         messages.success(request, f'A fresh 6-digit verification code has been sent to {mask_email(user.email)}.')
     else:
-        messages.info(request, f'Demo Mode (SMTP not configured): Your new verification code is {otp.otp_code}')
+        request.session['demo_otp'] = otp.otp_code
+        messages.info(request, f'Test Mode: Your fresh verification code is {otp.otp_code}.')
 
     return redirect('verify_otp')
 
 
 @csrf_protect
 def logout_view(request):
-
     logout(request)
+    messages.info(request, 'You have been logged out successfully.')
     return redirect('home')
 
 
-def profile(request): return render(request,'customer/profile.html')
-
-
-
-@require_POST
-def neon_session(request):
-    try:
-        body = json.loads(request.body)
-        token = body.get("token")
-
-        if not isinstance(token, str) or not token:
-            return JsonResponse(
-                {"error": "Authentication token is required."},
-                status=400
-            )
-
-        auth_url = urlsplit(settings.NEON_AUTH_BASE_URL)
-        issuer = f"{auth_url.scheme}://{auth_url.netloc}"
-
-        jwks_client = PyJWKClient(
-            settings.NEON_AUTH_JWKS_URL,
-            cache_keys=True
-        )
-
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
-
-        payload = jwt.decode(
-            token,
-            signing_key.key,
-            algorithms=["EdDSA"],
-            issuer=issuer,
-            audience=issuer,
-            options={
-                "require": ["exp", "iat", "sub", "iss", "aud"]
-            }
-        )
-
-        neon_user_id = payload.get("sub")
-
-        if not isinstance(neon_user_id, str) or not neon_user_id:
-            return JsonResponse(
-                {"error": "Invalid user identity."},
-                status=401
-            )
-
-        username = f"neon_{neon_user_id}"
-
-        if len(username) > 150:
-            return JsonResponse(
-                {"error": "Invalid user identity."},
-                status=401
-            )
-
-        email = ""
-        if payload.get("email_verified") is True:
-            claim_email = payload.get("email")
-            if isinstance(claim_email, str):
-                email = claim_email[:254]
-
-        with transaction.atomic():
-            user, created = User.objects.get_or_create(
-                username=username,
-                defaults={"email": email}
-            )
-
-            if created:
-                user.set_unusable_password()
-                user.save(update_fields=["password"])
-            elif email and user.email != email:
-                user.email = email
-                user.save(update_fields=["email"])
-
-            if not user.is_active:
-                return JsonResponse(
-                    {"error": "This account is inactive."},
-                    status=403
-                )
-
-        login(
-            request,
-            user,
-            backend="django.contrib.auth.backends.ModelBackend"
-        )
-
-        return JsonResponse({"success": True})
-
-    except (jwt.InvalidTokenError, jwt.PyJWKClientError):
-        return JsonResponse(
-            {"error": "Invalid or expired authentication token."},
-            status=401
-        )
-
-    except (ValueError, json.JSONDecodeError):
-        return JsonResponse(
-            {"error": "Invalid request."},
-            status=400
-        )
-
-    except Exception:
-        return JsonResponse(
-            {"error": "Authentication service is temporarily unavailable."},
-            status=503
-        )
+def profile(request):
+    if not request.user.is_authenticated:
+        messages.info(request, 'Please sign in to view your profile.')
+        return redirect('login')
+    return render(request, 'customer/profile.html')

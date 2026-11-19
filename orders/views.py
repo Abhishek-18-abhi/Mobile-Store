@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db import models
 from products.models import Product
 from .models import Order
 
@@ -104,7 +105,19 @@ def checkout(request):
 
 
 def order_history(request):
-    orders = Order.objects.all().order_by('-order_date')
+    if request.user.is_authenticated:
+        orders = Order.objects.filter(
+            models.Q(user=request.user) |
+            models.Q(customer_name__iexact=request.user.username) |
+            models.Q(customer_name__iexact=request.user.email)
+        ).select_related('product').order_by('-order_date')
+    else:
+        last_payment = request.session.get('last_payment')
+        if last_payment and last_payment.get('txn_id'):
+            orders = Order.objects.filter(transaction_id=last_payment['txn_id']).select_related('product').order_by('-order_date')
+        else:
+            orders = Order.objects.none()
+
     return render(request, 'customer/order_history.html', {
         'orders': orders
     })

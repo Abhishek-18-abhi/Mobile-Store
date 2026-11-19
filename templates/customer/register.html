@@ -120,4 +120,16 @@
         <span>End-to-End Encrypted Registration</span>
     </div>
 </div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    var p1 = document.getElementById('password').value;
+    var p2 = document.getElementById('confirm_password').value;
+    if (p1 !== p2) {
+        e.preventDefault();
+        alert('Passwords do not match. Please verify and re-enter.');
+        document.getElementById('confirm_password').focus();
+    }
+});
+</script>
 {% endblock %}

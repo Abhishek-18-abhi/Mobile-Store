@@ -4,7 +4,6 @@ from django.conf import settings
 from django.http import Http404, FileResponse
 from pathlib import Path
 
-from accounts import views
 
 def serve_media(request, path):
     # 1. Check runtime uploaded media in /tmp/media
@@ -19,12 +18,12 @@ def serve_media(request, path):
 
     raise Http404("Media file not found")
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
     path('accounts/', include('accounts.urls')),
     path('cart/', include('orders.urls')),
     path('payment/', include('payment.urls')),
-    path('neon/session/', views.neon_session, name='neon_session'),
     re_path(r'^media/(?P<path>.*)$', serve_media, name='serve_media'),
 ]
