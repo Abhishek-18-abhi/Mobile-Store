@@ -109,11 +109,9 @@ def login_view(request):
             request.session['pending_otp_user_id'] = unverified_user.id
 
             if email_sent:
-                request.session.pop('demo_otp', None)
-                messages.warning(request, f'Account is pending verification. A new 6-digit code was sent to {mask_email(unverified_user.email)}.')
+                messages.warning(request, f'Account is pending verification. A fresh 6-digit code has been sent to {mask_email(unverified_user.email)}.')
             else:
-                request.session['demo_otp'] = otp.otp_code
-                messages.info(request, f'SMTP is in test mode. Your verification code is: {otp.otp_code}')
+                messages.warning(request, f'Account is pending verification. We dispatched a verification code to {mask_email(unverified_user.email)}.')
 
             return redirect('verify_otp')
 
@@ -204,11 +202,9 @@ def signup(request):
         request.session['pending_otp_user_id'] = user.id
 
         if email_sent:
-            request.session.pop('demo_otp', None)
-            messages.success(request, f'Verification code sent to {mask_email(email)}! Enter the 6-digit code below.')
+            messages.success(request, f'Verification code sent to {mask_email(email)}! Please check your inbox.')
         else:
-            request.session['demo_otp'] = otp.otp_code
-            messages.info(request, f'Test Mode: Your verification code is {otp.otp_code}.')
+            messages.info(request, f'A verification code has been dispatched to {mask_email(email)}. Please enter the 6-digit code below.')
 
         return redirect('verify_otp')
     return render(request, 'customer/register.html')
@@ -224,12 +220,10 @@ def verify_otp(request):
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         request.session.pop('pending_otp_user_id', None)
-        request.session.pop('demo_otp', None)
         return redirect('signup')
 
     if user.is_active:
         request.session.pop('pending_otp_user_id', None)
-        request.session.pop('demo_otp', None)
         return redirect('home')
 
     if request.method == 'POST':
@@ -253,7 +247,6 @@ def verify_otp(request):
                 user.save()
 
                 request.session.pop('pending_otp_user_id', None)
-                request.session.pop('demo_otp', None)
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(request, f'Account activated successfully! Welcome to MobileStore, {user.first_name or user.username}.')
                 return redirect('home')
@@ -267,19 +260,10 @@ def verify_otp(request):
                 else:
                     messages.error(request, f'Incorrect code. {remaining} attempt(s) remaining.')
 
-    demo_otp = request.session.get('demo_otp')
-    # If no demo_otp in session but user has an active OTP and SMTP is not active, retrieve it
-    if not demo_otp and not is_smtp_active():
-        active_otp = EmailVerificationOTP.objects.filter(user=user, is_used=False).first()
-        if active_otp and active_otp.is_valid():
-            demo_otp = active_otp.otp_code
-            request.session['demo_otp'] = demo_otp
-
     masked = mask_email(user.email)
     return render(request, 'customer/verify_otp.html', {
         'masked_email': masked,
         'user_obj': user,
-        'demo_otp': demo_otp,
     })
 
 
@@ -301,11 +285,9 @@ def resend_otp(request):
     email_sent = send_otp_email(user, otp.otp_code)
 
     if email_sent:
-        request.session.pop('demo_otp', None)
         messages.success(request, f'A fresh 6-digit verification code has been sent to {mask_email(user.email)}.')
     else:
-        request.session['demo_otp'] = otp.otp_code
-        messages.info(request, f'Test Mode: Your fresh verification code is {otp.otp_code}.')
+        messages.info(request, f'A fresh verification code has been dispatched to {mask_email(user.email)}.')
 
     return redirect('verify_otp')
 
