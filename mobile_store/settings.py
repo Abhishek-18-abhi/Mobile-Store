@@ -16,10 +16,6 @@ load_dotenv(BASE_DIR / ".env.local")
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-prod-key-for-mobile-store")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-# Neon Authentication Configuration (optional)
-NEON_AUTH_BASE_URL = os.getenv("NEON_AUTH_BASE_URL", "")
-NEON_AUTH_JWKS_URL = os.getenv("NEON_AUTH_JWKS_URL", "")
-
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -85,7 +81,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mobile_store.wsgi.application'
 
-# Database — Neon PostgreSQL
+# Database — Supabase PostgreSQL (via dj-database-url)
 _raw_db_url = os.environ.get("DATABASE_URL", "").strip().strip('"').strip("'")
 if _raw_db_url:
     os.environ["DATABASE_URL"] = _raw_db_url

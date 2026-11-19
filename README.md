@@ -1,2 +1,2 @@
 # Mobile-Store
-I Have Created E-Commerce Website on Mobile Store Using HTML, CSS, Python, Django, MySQL .
+Modern Responsive E-Commerce Smartphone Store built with HTML, CSS, JavaScript, Python, Django, and Supabase PostgreSQL.
