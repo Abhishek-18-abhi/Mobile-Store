@@ -181,3 +181,20 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Supabase Auth Email Configuration (Built-in email delivery without external SMTP)
+SUPABASE_URL = (
+    os.environ.get('SUPABASE_URL') or
+    os.environ.get('NEXT_PUBLIC_SUPABASE_URL') or
+    'https://yjvkmwiyaeegoezffnrj.supabase.co'
+).strip().rstrip('/')
+
+SUPABASE_ANON_KEY = (
+    os.environ.get('SUPABASE_ANON_KEY') or
+    os.environ.get('SUPABASE_PUBLISHABLE_KEY') or
+    os.environ.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') or
+    os.environ.get('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY') or
+    'sb_publishable_KPQMWwhkelU5bjUBI27O9w_VASlwvc_'
+).strip().strip('"').strip("'")
+
+

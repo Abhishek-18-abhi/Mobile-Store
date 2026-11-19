@@ -1,4 +1,6 @@
+import json
 import logging
+import urllib.request
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -33,6 +35,62 @@ def mask_email(email):
     else:
         masked_name = name[0] + '*' * (len(name) - 2) + name[-1]
     return f"{masked_name}@{domain}"
+
+
+def send_supabase_otp(email):
+    """Dispatches a 6-digit verification code directly to the user's inbox using Supabase's built-in mailer."""
+    supabase_url = getattr(settings, 'SUPABASE_URL', 'https://yjvkmwiyaeegoezffnrj.supabase.co').rstrip('/')
+    anon_key = getattr(settings, 'SUPABASE_ANON_KEY', '')
+    if not supabase_url or not anon_key:
+        return False
+    try:
+        url = f"{supabase_url}/auth/v1/otp"
+        payload = json.dumps({"email": email, "create_user": True}).encode('utf-8')
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                'apikey': anon_key,
+                'Authorization': f'Bearer {anon_key}',
+                'Content-Type': 'application/json',
+                'User-Agent': 'MobileStore/1.0'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as res:
+            return res.status in (200, 201)
+    except Exception as e:
+        logger.warning(f"Supabase OTP dispatch failed for {email}: {e}")
+        return False
+
+
+def verify_supabase_otp(email, token):
+    """Verifies the 6-digit verification code against Supabase Auth service."""
+    supabase_url = getattr(settings, 'SUPABASE_URL', 'https://yjvkmwiyaeegoezffnrj.supabase.co').rstrip('/')
+    anon_key = getattr(settings, 'SUPABASE_ANON_KEY', '')
+    if not supabase_url or not anon_key or not token:
+        return False
+    try:
+        url = f"{supabase_url}/auth/v1/verify"
+        payload = json.dumps({
+            "type": "email",
+            "email": email,
+            "token": str(token).strip()
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                'apikey': anon_key,
+                'Authorization': f'Bearer {anon_key}',
+                'Content-Type': 'application/json',
+                'User-Agent': 'MobileStore/1.0'
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as res:
+            return res.status == 200
+    except Exception as e:
+        logger.info(f"Supabase verification check failed for {email}: {e}")
+        return False
 
 
 def send_otp_email(user, otp_code):
@@ -105,7 +163,7 @@ def login_view(request):
 
         if unverified_user:
             otp = EmailVerificationOTP.generate_otp(unverified_user)
-            email_sent = send_otp_email(unverified_user, otp.otp_code)
+            email_sent = send_supabase_otp(unverified_user.email) or send_otp_email(unverified_user, otp.otp_code)
             request.session['pending_otp_user_id'] = unverified_user.id
 
             if email_sent:
@@ -197,12 +255,13 @@ def signup(request):
             user.save()
 
         otp = EmailVerificationOTP.generate_otp(user)
-        email_sent = send_otp_email(user, otp.otp_code)
+        # Dispatch 6-digit verification code using Supabase's built-in mailer
+        email_sent = send_supabase_otp(user.email) or send_otp_email(user, otp.otp_code)
 
         request.session['pending_otp_user_id'] = user.id
 
         if email_sent:
-            messages.success(request, f'Verification code sent to {mask_email(email)}! Please check your inbox.')
+            messages.success(request, f'Verification code sent to {mask_email(email)}! Please check your email inbox.')
         else:
             messages.info(request, f'A verification code has been dispatched to {mask_email(email)}. Please enter the 6-digit code below.')
 
@@ -230,35 +289,37 @@ def verify_otp(request):
         otp_input = request.POST.get('otp', '').strip()
         active_otp = EmailVerificationOTP.objects.filter(user=user, is_used=False).first()
 
-        if not active_otp:
-            messages.error(request, 'No active verification code found. Please click "Resend Code" below.')
-        elif active_otp.attempts >= 5:
-            active_otp.is_used = True
-            active_otp.save()
-            messages.error(request, 'Too many failed attempts. Please click "Resend Code" below to request a fresh code.')
-        elif not active_otp.is_valid():
-            messages.error(request, 'Verification code has expired. Please click "Resend Code" below.')
-        else:
-            active_otp.attempts += 1
-            if active_otp.otp_code == otp_input:
+        # Check Supabase Auth verification first
+        supabase_verified = verify_supabase_otp(user.email, otp_input)
+
+        # Check Django local DB verification as resilient fallback
+        django_verified = bool(active_otp and active_otp.is_valid() and active_otp.otp_code == otp_input)
+
+        if supabase_verified or django_verified:
+            if active_otp:
                 active_otp.is_used = True
                 active_otp.save()
-                user.is_active = True
-                user.save()
+            user.is_active = True
+            user.save()
 
-                request.session.pop('pending_otp_user_id', None)
-                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                messages.success(request, f'Account activated successfully! Welcome to MobileStore, {user.first_name or user.username}.')
-                return redirect('home')
-            else:
+            request.session.pop('pending_otp_user_id', None)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, f'Account activated successfully! Welcome to MobileStore, {user.first_name or user.username}.')
+            return redirect('home')
+
+        # Incorrect attempt handling
+        if active_otp:
+            active_otp.attempts += 1
+            active_otp.save()
+            remaining = max(0, 5 - active_otp.attempts)
+            if remaining == 0:
+                active_otp.is_used = True
                 active_otp.save()
-                remaining = max(0, 5 - active_otp.attempts)
-                if remaining == 0:
-                    active_otp.is_used = True
-                    active_otp.save()
-                    messages.error(request, 'Incorrect code. Maximum attempts reached. Please click "Resend Code" below.')
-                else:
-                    messages.error(request, f'Incorrect code. {remaining} attempt(s) remaining.')
+                messages.error(request, 'Incorrect code. Maximum attempts reached. Please click "Resend Code" below.')
+            else:
+                messages.error(request, f'Incorrect verification code. {remaining} attempt(s) remaining.')
+        else:
+            messages.error(request, 'Incorrect or expired verification code. Please click "Resend Code" below.')
 
     masked = mask_email(user.email)
     return render(request, 'customer/verify_otp.html', {
@@ -282,7 +343,7 @@ def resend_otp(request):
         return redirect('home')
 
     otp = EmailVerificationOTP.generate_otp(user)
-    email_sent = send_otp_email(user, otp.otp_code)
+    email_sent = send_supabase_otp(user.email) or send_otp_email(user, otp.otp_code)
 
     if email_sent:
         messages.success(request, f'A fresh 6-digit verification code has been sent to {mask_email(user.email)}.')
