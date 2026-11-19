@@ -86,13 +86,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mobile_store.wsgi.application'
 
 # Database — Neon PostgreSQL
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=0,
-        ssl_require=True,
-    )
-}
+_raw_db_url = os.environ.get("DATABASE_URL", "").strip().strip('"').strip("'")
+if _raw_db_url:
+    os.environ["DATABASE_URL"] = _raw_db_url
+    DATABASES = {
+        "default": dj_database_url.parse(
+            _raw_db_url,
+            conn_max_age=0,
+            ssl_require=True,
+        )
+    }
+else:
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=0,
+            ssl_require=True,
+        )
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
