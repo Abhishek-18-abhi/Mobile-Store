@@ -49,12 +49,20 @@ def update_cart(request, product_id, action):
     key = str(product_id)
 
     if key in cart:
-        if action == 'plus':
-            cart[key] = int(cart[key]) + 1
-        elif action == 'minus':
-            cart[key] = int(cart[key]) - 1
+        try:
+            product = Product.objects.get(id=product_id)
+            current_qty = int(cart[key])
+            if action == 'plus':
+                if current_qty < product.stock:
+                    cart[key] = current_qty + 1
+                else:
+                    messages.warning(request, f'Maximum available stock for "{product.name}" is {product.stock} units.')
+            elif action == 'minus':
+                cart[key] = current_qty - 1
 
-        if cart[key] <= 0:
+            if cart[key] <= 0:
+                cart.pop(key, None)
+        except Product.DoesNotExist:
             cart.pop(key, None)
 
     request.session['cart'] = cart
@@ -79,6 +87,21 @@ def checkout(request):
         messages.warning(request, 'Your cart is empty. Please add items before checking out.')
         return redirect('products')
 
+    # Inventory Stock Guard: ensure no cart item exceeds available stock
+    out_of_stock_items = []
+    for item in items:
+        if item['quantity'] > item['product'].stock:
+            out_of_stock_items.append(
+                f"{item['product'].name} (Requested: {item['quantity']}, Available: {item['product'].stock})"
+            )
+
+    if out_of_stock_items:
+        messages.error(
+            request,
+            f"Some items in your cart exceed available stock: {', '.join(out_of_stock_items)}. Please adjust your cart before checking out."
+        )
+        return redirect('cart')
+
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip()
         phone = request.POST.get('phone', '').strip()
@@ -89,6 +112,12 @@ def checkout(request):
 
         if not phone or not address:
             messages.error(request, 'Please provide both phone number and delivery address.')
+            return render(request, 'customer/checkout.html', {'items': items, 'total': total})
+
+        # Phone length and character sanity check
+        digits_only = ''.join(c for c in phone if c.isdigit())
+        if len(digits_only) < 10 or len(digits_only) > 15:
+            messages.error(request, 'Please enter a valid 10-digit mobile phone number.')
             return render(request, 'customer/checkout.html', {'items': items, 'total': total})
 
         request.session['checkout_data'] = {
@@ -128,30 +157,45 @@ from .invoice_helper import build_invoice_context
 
 def bill(request, order_id=None):
     invoice = None
+    last_payment = request.session.get('last_payment')
+
     if order_id:
         try:
-            order = Order.objects.get(id=order_id)
+            order = Order.objects.select_related('product', 'user').get(id=order_id)
+
+            # Security / IDOR Guard: Verify requester ownership
+            is_owner = (request.user.is_authenticated and order.user_id == request.user.id)
+            is_matching_session = bool(last_payment and order.transaction_id == last_payment.get('txn_id'))
+            is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+
+            if not (is_owner or is_matching_session or is_staff):
+                messages.error(request, 'You do not have permission to view this invoice.')
+                return redirect('order_history')
+
             if order.transaction_id:
                 related_orders = Order.objects.filter(transaction_id=order.transaction_id).select_related('product')
             else:
                 related_orders = [order]
             invoice = build_invoice_context(related_orders)
         except Order.DoesNotExist:
-            invoice = None
+            messages.error(request, 'The requested invoice could not be found.')
+            return redirect('order_history')
 
     if not invoice:
-        last_payment = request.session.get('last_payment')
         if last_payment:
             invoice = build_invoice_context(None, last_payment_dict=last_payment)
+        elif request.user.is_authenticated:
+            user_order = Order.objects.filter(user=request.user).select_related('product').first()
+            if user_order:
+                if user_order.transaction_id:
+                    related = Order.objects.filter(transaction_id=user_order.transaction_id).select_related('product')
+                else:
+                    related = [user_order]
+                invoice = build_invoice_context(related)
 
     if not invoice:
-        latest_order = Order.objects.all().select_related('product').first()
-        if latest_order:
-            if latest_order.transaction_id:
-                related = Order.objects.filter(transaction_id=latest_order.transaction_id).select_related('product')
-            else:
-                related = [latest_order]
-            invoice = build_invoice_context(related)
+        messages.info(request, 'No active order invoice found. Please complete an order first.')
+        return redirect('products')
 
     return render(request, 'customer/bill.html', {
         'invoice': invoice

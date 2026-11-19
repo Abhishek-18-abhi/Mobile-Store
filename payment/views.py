@@ -65,6 +65,17 @@ def confirm_payment(request):
     phone = checkout_data.get('phone', '')
     address = checkout_data.get('address', '')
 
+    # Pre-verification: Verify every item has sufficient inventory
+    for item in items:
+        p = item['product']
+        q = item['quantity']
+        if q > p.stock:
+            messages.error(
+                request,
+                f'Insufficient stock for "{p.name}". You requested {q} unit(s), but only {p.stock} are available.'
+            )
+            return redirect('cart')
+
     for item in items:
         product = item['product']
         qty = item['quantity']
@@ -82,10 +93,7 @@ def confirm_payment(request):
             total_amount=item['subtotal']
         )
 
-        if product.stock >= qty:
-            product.stock -= qty
-        else:
-            product.stock = 0
+        product.stock = max(0, product.stock - qty)
         product.save(update_fields=['stock'])
 
     # Save summary for receipt

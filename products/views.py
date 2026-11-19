@@ -49,18 +49,45 @@ def about(request):
 
 def contact(request):
     if request.method == 'POST':
-        messages.success(request, 'Thank you! Your message has been received. Our team will contact you shortly.')
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        if not name or not email or not message:
+            messages.error(request, 'Please fill in all required fields (Name, Email, and Message).')
+            return render(request, 'customer/contact.html')
+
+        if '@' not in email or '.' not in email:
+            messages.error(request, 'Please provide a valid email address.')
+            return render(request, 'customer/contact.html')
+
+        messages.success(request, f'Thank you, {name}! Your message has been received. Our priority support team will contact you at {email} within 24 hours.')
         return redirect('contact')
     return render(request, 'customer/contact.html')
 
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+
+    # Inventory Guard: Out of stock check
+    if product.stock <= 0:
+        messages.error(request, f'Sorry, "{product.name}" is currently out of stock and cannot be added.')
+        next_url = request.META.get('HTTP_REFERER')
+        return redirect(next_url or 'products')
+
     cart = request.session.get('cart', {})
     key = str(product.id)
-    cart[key] = cart.get(key, 0) + 1
+    current_qty = cart.get(key, 0)
+
+    # Inventory Guard: Do not exceed available inventory
+    if current_qty >= product.stock:
+        messages.warning(request, f'Cannot add more. You already have all {product.stock} available units of "{product.name}" in your cart.')
+        return redirect('cart')
+
+    cart[key] = current_qty + 1
     request.session['cart'] = cart
     messages.success(request, f'Added "{product.name}" to your cart!')
+
     # Redirect back to referring page if available, else cart
     next_url = request.META.get('HTTP_REFERER')
     if next_url and 'cart' not in next_url:
